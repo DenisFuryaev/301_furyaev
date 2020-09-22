@@ -96,7 +96,7 @@ namespace FirstProject
 
         public override string ToLongString()
         {
-            // TODO: need to implement !!!
+            // TODO: need to implement  !!!
             return "wow";
         }
 
