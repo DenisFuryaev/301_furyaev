@@ -1,9 +1,7 @@
 # ignore everything
-
 *
 
 # except this files
-
 !.gitignore
 !Program.cs
 !Lab1.sln
