@@ -19,7 +19,7 @@ namespace FirstProject
 
         public override string ToString()
         {
-            return $"coordinate - ({grid_coord.X}, {grid_coord.Y}); value = {EM_value}";
+            return $"coordinate - ({grid_coord.X}, {grid_coord.Y}); value = {EM_value}\n";
         }
     }
 
@@ -37,7 +37,7 @@ namespace FirstProject
 
         public override string ToString()
         {
-            return $"stride = {stride}; knot_count = {knot_count}";
+            return $"stride = {stride}; knot_count = {knot_count}\n";
         }
     }
 
@@ -57,7 +57,7 @@ namespace FirstProject
 
         public override string ToString()
         {
-            return $"info = {info}; EM_frequency = {EM_frequency}";
+            return $"info = {info}; EM_frequency = {EM_frequency}\n";
         }
     }
 
@@ -69,18 +69,24 @@ namespace FirstProject
         public V2DataOnGrid(string info, double EM_frequency, Grid1D OX_settings, Grid1D OY_settings) : base(info, EM_frequency)
         {
             EM_array = new Complex[OX_settings.knot_count, OY_settings.knot_count];
+            grid_settings = new Grid1D[2];
             grid_settings[0] = OX_settings;
             grid_settings[1] = OY_settings;
         }
 
         public void InitRandom(double minValue, double maxValue)
         {
+            if (minValue > maxValue)
+            {
+                throw new System.InvalidOperationException("minValue must be less or equal than maxValue");
+            }    
+
+            Random rnd = new Random();
             for (int j = 0; j < grid_settings[1].knot_count; j++)
             {
                 for (int i = 0; i < grid_settings[0].knot_count; i++)
-                {
-                    // TODO: EM_valur need to be random !!!
-                    EM_array[i, j] = new Complex(0.5, 0.5);
+                {     
+                    EM_array[i, j] = new Complex(minValue + (maxValue - minValue) * rnd.NextDouble(), minValue + (maxValue - minValue) * rnd.NextDouble());
                 }
             }
         }
@@ -94,16 +100,28 @@ namespace FirstProject
             return array;
         }
 
-        public override string ToLongString()
-        {
-            // TODO: need to implement  !!!
-            return "wow";
-        }
-
         public override string ToString()
         {
-            return $"knot_count on OX axis = {grid_settings[0].knot_count}; knot_count on OY axis = {grid_settings[1].knot_count}";
+            string output = $"knot_count on OX axis = {grid_settings[0].knot_count}; knot_count on OY axis = {grid_settings[1].knot_count}\n";
+            output += $"stride on OX axis = {grid_settings[0].stride}; stride on OY axis = {grid_settings[1].stride}\n";
+            output += base.ToString();
+            return output;
         }
+
+        public override string ToLongString()
+        {
+            string output = this.ToString();
+            for (int j = 0; j < grid_settings[1].knot_count; j++)
+            {
+                for (int i = 0; i < grid_settings[0].knot_count; i++)
+                {
+                    output += EM_array[i, j].ToString() + " ";
+                }
+                output += "\n";
+            }
+            return output;
+        }
+
     }
 
     //class V2DataCollection : V2DATA
@@ -115,9 +133,12 @@ namespace FirstProject
     {
         static void Main(string[] args)
         {
-
-            V2DataOnGrid data = new V2DataOnGrid("some info", 10.0f, new Grid1D(1, 5), new Grid1D(1, 8));
-            Console.WriteLine(data);
+            Grid1D grid_x = new Grid1D(1, 2);
+            Grid1D grid_y = new Grid1D(2, 3);
+            //Console.WriteLine(grid_x);
+            V2DataOnGrid data = new V2DataOnGrid("some information about this data", 10.0f, grid_x, grid_y);
+            data.InitRandom(-10.0, 5.0);
+            Console.WriteLine(data.ToLongString());
 
         }
     }
