@@ -9,7 +9,7 @@ namespace FirstProject
     struct DataItem
     {
         public Vector2 grid_coord { get; set; }
-        Complex EM_value;
+        public Complex EM_value;
 
         public DataItem(Vector2 grid_coord, Complex EM_value)
         {
@@ -95,9 +95,36 @@ namespace FirstProject
 
         public override Complex[] NearAverage(float eps)
         {
-            // TODO: need to implement !!!
-            Complex[] array = null;
-            return array;
+            double mean_real = 0, sum_real = 0;
+            int x_knot_count = grid_settings[0].knot_count, y_knot_count = grid_settings[1].knot_count;
+            Complex[] output_array = new Complex[x_knot_count * y_knot_count];
+
+            for (int j = 0; j < y_knot_count; j++)
+            {
+                for (int i = 0; i < x_knot_count; i++)
+                {
+                    sum_real += EM_array[i, j].Real;
+                }
+            }
+
+            mean_real = sum_real / (x_knot_count * y_knot_count);
+
+            int k = 0;
+            for (int j = 0; j < y_knot_count; j++)
+            {
+                for (int i = 0; i < x_knot_count; i++)
+                {
+                    if (Math.Abs(EM_array[i, j].Real - mean_real) < eps)
+                    {
+                        output_array[k] = EM_array[i, j];
+                        k++;
+                    }
+                }
+            }
+
+            Array.Resize(ref output_array, k);
+
+            return output_array;
         }
 
         public override string ToString()
@@ -124,10 +151,81 @@ namespace FirstProject
 
     }
 
-    //class V2DataCollection : V2DATA
-    //{
+    class V2DataCollection : V2DATA
+    {
+        public List<DataItem> EM_list { get; set; }
 
-    //}
+        public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
+        {
+            EM_list = new List<DataItem>();
+        }
+
+        public void InitRandom(int nItems, float xmax, float ymax, double minValue, double maxValue)
+        {
+            if (minValue > maxValue)
+            {
+                throw new System.InvalidOperationException("minValue must be less or equal than maxValue");
+            }
+
+            Random rnd = new Random();
+
+            Vector2 coord;
+            Complex num;
+            DataItem data;
+            for (int i = 0; i < nItems; i++)
+            {
+                coord = new Vector2((float)rnd.NextDouble() * xmax, (float)rnd.NextDouble() * ymax);
+                num = new Complex(minValue + (maxValue - minValue) * rnd.NextDouble(), minValue + (maxValue - minValue) * rnd.NextDouble());
+                data = new DataItem(coord, num);
+                EM_list.Add(data);
+            }
+        }
+
+        public override Complex[] NearAverage(float eps)
+        {
+            double mean_real = 0, sum_real = 0;
+            int knot_count = EM_list.Count;
+            Complex[] output_array = new Complex[knot_count];
+
+            for (int i = 0; i < knot_count; i++)
+            {
+                sum_real += EM_list[i].EM_value.Real;
+            }
+
+            mean_real = sum_real / knot_count;
+
+            int k = 0;
+            for (int i = 0; i < knot_count; i++)
+            {
+                if (Math.Abs(EM_list[i].EM_value.Real - mean_real) < eps)
+                {
+                    output_array[k] = EM_list[i].EM_value;
+                    k++;
+                }
+            }
+
+            Array.Resize(ref output_array, k);
+
+            return output_array;
+        }
+
+        public override string ToString()
+        {
+            string output = $"knot_count = {EM_list.Count}\n";
+            output += base.ToString();
+            return output;
+        }
+
+        public override string ToLongString()
+        {
+            string output = this.ToString();
+            for (int i = 0; i < EM_list.Count; i++)
+            {
+                output += "coord = " + EM_list[i].grid_coord.ToString() + "value = " + EM_list[i].EM_value.ToString() + " ";
+            }
+            return output;
+        }
+    }
 
     class Program
     {
@@ -135,10 +233,16 @@ namespace FirstProject
         {
             Grid1D grid_x = new Grid1D(1, 2);
             Grid1D grid_y = new Grid1D(2, 3);
-            //Console.WriteLine(grid_x);
             V2DataOnGrid data = new V2DataOnGrid("some information about this data", 10.0f, grid_x, grid_y);
             data.InitRandom(-10.0, 5.0);
+
             Console.WriteLine(data.ToLongString());
+            Complex[] array = data.NearAverage(2.0f);
+            for (int i = 0; i < array.Length; i++)
+            {
+                Console.WriteLine(array[i]);
+            }
+            
 
         }
     }
