@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
-using Microsoft.VisualBasic;
 
 namespace FirstProject
 {
@@ -151,7 +151,8 @@ namespace FirstProject
 
         public override string ToString()
         {
-            string output = $"knot_count on OX axis = {grid_settings[0].knot_count}; knot_count on OY axis = {grid_settings[1].knot_count}\n";
+            string output = $"  type = V2DataOnGrid\n";
+            output += $"knot_count on OX axis = {grid_settings[0].knot_count}; knot_count on OY axis = {grid_settings[1].knot_count}\n";
             output += $"stride on OX axis = {grid_settings[0].stride}; stride on OY axis = {grid_settings[1].stride}\n";
             output += base.ToString();
             return output;
@@ -234,7 +235,8 @@ namespace FirstProject
 
         public override string ToString()
         {
-            string output = $"knot_count = {EM_list.Count}\n";
+            string output = $"  type = V2DataCollection\n";
+            output += $"knot_count = {EM_list.Count}\n";
             output += base.ToString();
             return output;
         }
@@ -250,7 +252,7 @@ namespace FirstProject
         }
     }
 
-    class V2MainCollection 
+    class V2MainCollection : IEnumerable<V2Data>
     {
         private List<V2Data> V2data_list;
         public int Count { get { return V2data_list.Count; } }
@@ -267,11 +269,13 @@ namespace FirstProject
 
         public void AddDefaults()
         {
-            
+            // random init 
             V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 1.0f, new Grid1D(1, 2), new Grid1D(2, 3));
+            data_grid.InitRandom(-10.0, -5.0);
 
             V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
             data_collection_1.InitRandom(3, 1.0f, 2.0f, 1.0f, 5.0f);
+
             V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
             data_collection_2.InitRandom(5, 10.0f, 20.0f, -2.0f, 2.0f);
 
@@ -299,14 +303,61 @@ namespace FirstProject
 
         public override string ToString()
         {
-            string output = "";
+            string output = $"  type = V2MainCollection\n";
             for (int i = 0; i < V2data_list.Count; i++)
             {
                 output += V2data_list[i].ToString() + "\n";
             }
             return output;
         }
+
+        // interface implementation
+        public IEnumerator GetEnumerator()
+        {
+            return new MyEnumerator(ref V2data_list);
+        }
+
+        IEnumerator<V2Data> IEnumerable<V2Data>.GetEnumerator()
+        {
+            return new MyEnumerator(ref V2data_list);
+        }
     }
+
+    // ref or value ????
+    class MyEnumerator : IEnumerator<V2Data>
+    { 
+        private List<V2Data> collection;
+        private int current = -1;
+        public object Current { get { return collection[current]; } }
+
+        public MyEnumerator(ref List<V2Data> collection)
+        {
+            this.collection = collection;
+        }
+
+        public bool MoveNext()
+        {
+            current++;
+            return (current < collection.Count);
+        }
+
+        public void Reset()
+        {
+            current = -1;
+        }
+
+        // not implemented
+        V2Data IEnumerator<V2Data>.Current => throw new NotImplementedException();
+
+        public void Dispose()
+        {
+            //throw new NotImplementedException();
+        }
+    }
+
+
+
+
 
     class Program
     {
@@ -324,21 +375,29 @@ namespace FirstProject
             V2MainCollection main_collection = new V2MainCollection();
             main_collection.AddDefaults();
             Console.WriteLine(main_collection.ToString());
+        
+            // зачем нужен этот вектор?
+            Vector2 vector;
+            Complex[] array;
+            foreach (V2Data data in main_collection)
+            {
+                array = data.NearAverage(1.0f);
 
-            // deleting element
-            //main_collection.Remove("data_collection_1", 2.0f);
-            //Console.WriteLine(main_collection.ToString());
+                for (int i = 0; i < array.Length; i++)
+                    Console.WriteLine(array[i]);
+
+                Array.Clear(array, 0, array.Length);
+
+                Console.WriteLine("\n");
+            }
 
             // ------------------------------
 
 
+            // --- deleting element ---
 
-            //Complex[] array = data.NearAverage(1.0f);
-            //for (int i = 0; i < array.Length; i++)
-            //{
-            //    Console.WriteLine(array[i]);
-            //}
-
+            //main_collection.Remove("data_collection_1", 2.0f);
+            //Console.WriteLine(main_collection.ToString());
 
         }
     }
