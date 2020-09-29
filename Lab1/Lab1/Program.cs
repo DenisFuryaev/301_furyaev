@@ -314,23 +314,22 @@ namespace FirstProject
         // interface implementation
         public IEnumerator GetEnumerator()
         {
-            return new MyEnumerator(ref V2data_list);
+            return new MyEnumerator(V2data_list);
         }
 
         IEnumerator<V2Data> IEnumerable<V2Data>.GetEnumerator()
         {
-            return new MyEnumerator(ref V2data_list);
+            return new MyEnumerator(V2data_list);
         }
     }
 
-    // ref or value ????
     class MyEnumerator : IEnumerator<V2Data>
     { 
         private List<V2Data> collection;
         private int current = -1;
         public object Current { get { return collection[current]; } }
 
-        public MyEnumerator(ref List<V2Data> collection)
+        public MyEnumerator(List<V2Data> collection)
         {
             this.collection = collection;
         }
@@ -346,13 +345,9 @@ namespace FirstProject
             current = -1;
         }
 
-        // not implemented
         V2Data IEnumerator<V2Data>.Current => throw new NotImplementedException();
 
-        public void Dispose()
-        {
-            //throw new NotImplementedException();
-        }
+        public void Dispose() {  }
     }
 
 
@@ -365,7 +360,7 @@ namespace FirstProject
         {
             // ------------------------------
 
-            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_1", 10.0f, new Grid1D(1, 2), new Grid1D(2, 2));
+            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_1", 10.0f, new Grid1D(1, 2), new Grid1D(2, 3));
             data_grid.InitRandom(-10.0, -5.0);
             Console.WriteLine(data_grid.ToLongString());
 
@@ -376,9 +371,8 @@ namespace FirstProject
             main_collection.AddDefaults();
             Console.WriteLine(main_collection.ToString());
         
-            // зачем нужен этот вектор?
-            Vector2 vector;
             Complex[] array;
+            Console.WriteLine(" NearAverage of all elements in main_collection object:\n");
             foreach (V2Data data in main_collection)
             {
                 array = data.NearAverage(1.0f);
@@ -395,7 +389,6 @@ namespace FirstProject
 
 
             // --- deleting element ---
-
             //main_collection.Remove("data_collection_1", 2.0f);
             //Console.WriteLine(main_collection.ToString());
 
