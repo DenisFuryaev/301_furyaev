@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Threading;
+using Microsoft.VisualBasic;
 
 namespace FirstProject
 {
@@ -201,6 +201,7 @@ namespace FirstProject
                 data = new DataItem(coord, num);
                 EM_list.Add(data);
             }
+            
         }
 
         public override Complex[] NearAverage(float eps)
@@ -243,13 +244,13 @@ namespace FirstProject
             string output = this.ToString();
             for (int i = 0; i < EM_list.Count; i++)
             {
-                output += "coord = " + EM_list[i].grid_coord.ToString() + " value = " + EM_list[i].EM_value.ToString() + "; ";
+                output += "coord = " + EM_list[i].grid_coord.ToString() + "; value = " + EM_list[i].EM_value.ToString() + ";\n";
             }
             return output;
         }
     }
 
-    class V2MainCollection
+    class V2MainCollection 
     {
         private List<V2Data> V2data_list;
         public int Count { get { return V2data_list.Count; } }
@@ -266,17 +267,34 @@ namespace FirstProject
 
         public void AddDefaults()
         {
-            // ввести нормальные данные
-            Grid1D grid_x = new Grid1D(1, 2);
-            Grid1D grid_y = new Grid1D(2, 3);
-            V2DataOnGrid data_grid = new V2DataOnGrid("some information about this data", 10.0f, grid_x, grid_y);
+            
+            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 1.0f, new Grid1D(1, 2), new Grid1D(2, 3));
 
-            V2DataCollection data_collection_1 = (V2DataCollection)data_grid;
-            V2DataCollection data_collection_2 = (V2DataCollection)data_grid;
+            V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
+            data_collection_1.InitRandom(3, 1.0f, 2.0f, 1.0f, 5.0f);
+            V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
+            data_collection_2.InitRandom(5, 10.0f, 20.0f, -2.0f, 2.0f);
 
             V2data_list.Add(data_grid);
             V2data_list.Add(data_collection_1);
             V2data_list.Add(data_collection_2);
+        }
+
+        public bool Remove(string id, double w)
+        {
+            bool return_value = false;
+
+            for(int i = 0; i < V2data_list.Count; i++)
+            {
+                if ((V2data_list[i].info == id) && (V2data_list[i].EM_frequency == w))
+                {
+                   V2data_list.Remove(V2data_list[i]);
+                   return_value = true;
+                   i--;
+                }
+                    
+            }
+            return return_value;
         }
 
         public override string ToString()
@@ -284,7 +302,7 @@ namespace FirstProject
             string output = "";
             for (int i = 0; i < V2data_list.Count; i++)
             {
-                output += V2data_list[i].ToString();
+                output += V2data_list[i].ToString() + "\n";
             }
             return output;
         }
@@ -296,9 +314,7 @@ namespace FirstProject
         {
             // ------------------------------
 
-            Grid1D grid_x = new Grid1D(1, 2);
-            Grid1D grid_y = new Grid1D(2, 3);
-            V2DataOnGrid data_grid = new V2DataOnGrid("some information about this data", 10.0f, grid_x, grid_y);
+            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_1", 10.0f, new Grid1D(1, 2), new Grid1D(2, 2));
             data_grid.InitRandom(-10.0, -5.0);
             Console.WriteLine(data_grid.ToLongString());
 
@@ -308,6 +324,10 @@ namespace FirstProject
             V2MainCollection main_collection = new V2MainCollection();
             main_collection.AddDefaults();
             Console.WriteLine(main_collection.ToString());
+
+            // deleting element
+            //main_collection.Remove("data_collection_1", 2.0f);
+            //Console.WriteLine(main_collection.ToString());
 
             // ------------------------------
 
