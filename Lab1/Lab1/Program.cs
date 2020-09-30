@@ -314,41 +314,16 @@ namespace FirstProject
         // interface implementation
         public IEnumerator GetEnumerator()
         {
-            return new MyEnumerator(V2data_list);
+            return V2data_list.GetEnumerator();
         }
 
         IEnumerator<V2Data> IEnumerable<V2Data>.GetEnumerator()
         {
-            return new MyEnumerator(V2data_list);
+            return V2data_list.GetEnumerator();
         }
     }
 
-    class MyEnumerator : IEnumerator<V2Data>
-    { 
-        private List<V2Data> collection;
-        private int current = -1;
-        public object Current { get { return collection[current]; } }
 
-        public MyEnumerator(List<V2Data> collection)
-        {
-            this.collection = collection;
-        }
-
-        public bool MoveNext()
-        {
-            current++;
-            return (current < collection.Count);
-        }
-
-        public void Reset()
-        {
-            current = -1;
-        }
-
-        V2Data IEnumerator<V2Data>.Current => throw new NotImplementedException();
-
-        public void Dispose() {  }
-    }
 
 
 
