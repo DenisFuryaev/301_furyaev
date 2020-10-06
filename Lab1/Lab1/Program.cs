@@ -80,8 +80,10 @@ namespace FirstProject
         {
             if (minValue > maxValue)
             {
-                throw new System.InvalidOperationException("minValue must be less or equal than maxValue");
-            }    
+                double tmp = maxValue;
+                maxValue = minValue;
+                minValue = tmp;
+            }   
 
             Random rnd = new Random();
             for (int j = 0; j < grid_settings[1].knot_count; j++)
@@ -187,7 +189,9 @@ namespace FirstProject
         {
             if (minValue > maxValue)
             {
-                throw new System.InvalidOperationException("minValue must be less or equal than maxValue");
+                double tmp = maxValue;
+                maxValue = minValue;
+                minValue = tmp;
             }
 
             Random rnd = new Random();
