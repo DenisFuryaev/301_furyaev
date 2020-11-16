@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace FirstProject
@@ -52,7 +53,7 @@ namespace FirstProject
         public string ToString(string format)
         {
             string output = "stride = " + stride.ToString(format) + "; ";
-            output += "knot_count = " + knot_count.ToString(format) + ";\n";
+            output += "knot_count = " + knot_count.ToString() + ";\n";
             return output;
         }
     }
@@ -71,10 +72,18 @@ namespace FirstProject
 
         public abstract Complex[] NearAverage(float eps);
         public abstract string ToLongString();
+        public abstract string ToLongString(string format);
 
         public override string ToString()
         {
             return $"info = {info}; EM_frequency = {EM_frequency}\n";
+        }
+
+        public string ToString(string format)
+        {
+            string output = "info = " + info + "; ";
+            output += "EM_frequency = " + EM_frequency.ToString(format) + ";\n";
+            return output;
         }
     }
 
@@ -89,6 +98,82 @@ namespace FirstProject
             grid_settings = new Grid1D[2];
             grid_settings[0] = OX_settings;
             grid_settings[1] = OY_settings;
+        }
+
+        /*
+         (data format in file named filename)
+
+         descriptions   - (string)
+         EM_frequency   - (float)
+         stride_OX, knot_count_OX   - (float, int)
+         stride_OY, knot_count_OY   - (float, int)
+         (x_1,1, y_1,1) ... (x_1,knot_count_OX, y_1,knot_count_OX)  - (float, float)
+           ...                              ...
+           ...                                               ...
+           ...                                                              ...
+         (x_knot_count_OY,1, y_knot_count_OY,1) ... (x_knot_count_OY,knot_count_OX, y_knot_count_OY,knot_count_OX)  - (float, float)
+
+        */
+
+        public V2DataOnGrid(string filename) : base("", 0)
+        {
+            string path = "../../../" + filename;
+
+            try 
+            {
+                string[] lines = System.IO.File.ReadAllLines(path);
+
+                string info = "";
+                double EM_frequency;
+                Grid1D OX_settings;
+                Grid1D OY_settings;
+
+                char[] delimiterChars = { ' ', ',', '(', ')' };
+
+                info = lines[0];
+                EM_frequency = Convert.ToDouble(lines[1]);
+
+                string[] numbers = lines[2].Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+                OX_settings = new Grid1D((float)Convert.ToDouble(numbers[0]), Convert.ToInt32(numbers[1]));
+                Array.Clear(numbers, 0, numbers.Length);
+
+                numbers = lines[3].Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+                OY_settings = new Grid1D((float)Convert.ToDouble(numbers[0]), Convert.ToInt32(numbers[1]));
+                Array.Clear(numbers, 0, numbers.Length);
+
+
+                grid_settings = new Grid1D[2];
+                grid_settings[0] = OX_settings;
+                grid_settings[1] = OY_settings;
+
+                EM_array = new Complex[OX_settings.knot_count, OY_settings.knot_count];
+                int x = 0, y = 0;
+
+                for (int i = 4; i < lines.Length; i++)
+                {
+                    numbers = lines[i].Split(delimiterChars, StringSplitOptions.RemoveEmptyEntries);
+
+                    for (x = 0; x < OX_settings.knot_count; x++)
+                        EM_array[x, y] = new Complex(double.Parse(numbers[2 * x], System.Globalization.CultureInfo.InvariantCulture), double.Parse(numbers[2 * x + 1], System.Globalization.CultureInfo.InvariantCulture));
+
+                    y++;
+                    Array.Clear(numbers, 0, numbers.Length);
+                }
+
+                base.info = info;
+                base.EM_frequency = EM_frequency;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                Console.WriteLine("The 'try catch' block is finished.");
+            }
+
+
+
         }
 
         public void InitRandom(double minValue, double maxValue)
@@ -189,6 +274,25 @@ namespace FirstProject
             return output;
         }
 
+        public override string ToLongString(string format)
+        {
+            string output = "  type = V2DataOnGrid\n";
+            output += base.ToString(format);
+            output += "grid_settings on OX axis: " + grid_settings[0].ToString(format);
+            output += "grid_settings on OY axis: " + grid_settings[1].ToString(format);
+
+            for (int j = 0; j < grid_settings[1].knot_count; j++)
+            {
+                for (int i = 0; i < grid_settings[0].knot_count; i++)
+                {
+                    output += EM_array[i, j].ToString(format) + " ";
+                }
+                output += "\n";
+            }
+
+            return output;
+        }
+
     }
 
     class V2DataCollection : V2Data
@@ -263,10 +367,21 @@ namespace FirstProject
         public override string ToLongString()
         {
             string output = this.ToString();
+
             for (int i = 0; i < EM_list.Count; i++)
-            {
-                output += "coord = " + EM_list[i].grid_coord.ToString() + "; value = " + EM_list[i].EM_value.ToString() + ";\n";
-            }
+                output += EM_list[i].ToString();
+            
+            return output;
+        }
+
+        public override string ToLongString(string format)
+        {
+            string output = "  type = V2DataCollection\n";
+            output += base.ToString(format);
+
+            for (int i = 0; i < EM_list.Count; i++)
+                output += EM_list[i].ToString(format);
+
             return output;
         }
     }
@@ -289,8 +404,8 @@ namespace FirstProject
         public void AddDefaults()
         {
             // random init 
-            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 1.0f, new Grid1D(1, 2), new Grid1D(2, 3));
-            data_grid.InitRandom(-10.0, -5.0);
+            //V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 1.0f, new Grid1D(1, 2), new Grid1D(2, 3));
+           // data_grid.InitRandom(-10.0, -5.0);
 
             V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
             data_collection_1.InitRandom(3, 1.0f, 2.0f, 1.0f, 5.0f);
@@ -298,7 +413,7 @@ namespace FirstProject
             V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
             data_collection_2.InitRandom(5, 10.0f, 20.0f, -2.0f, 2.0f);
 
-            V2data_list.Add(data_grid);
+           // V2data_list.Add(data_grid);
             V2data_list.Add(data_collection_1);
             V2data_list.Add(data_collection_2);
         }
@@ -330,6 +445,14 @@ namespace FirstProject
             return output;
         }
 
+        public string ToLongString(string format)
+        {
+            string output = "";
+            for (int i = 0; i < V2data_list.Count; i++)
+                output += V2data_list[i].ToString(format);
+            return output;
+        }
+
         // interface implementation
         public IEnumerator GetEnumerator()
         {
@@ -350,10 +473,10 @@ namespace FirstProject
         {
             // ------------------------------
 
-            Grid1D grid = new Grid1D(123.2334f, 67);
-            Console.WriteLine(grid.ToString("F1"));
+            V2DataOnGrid data = new V2DataOnGrid("V2DataOnGrid.9txt");
+            Console.WriteLine(data.ToLongString("N"));
 
-            
+
 
             // ------------------------------
 
