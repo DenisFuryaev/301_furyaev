@@ -87,7 +87,7 @@ namespace FirstProject
         }
     }
 
-    class V2DataOnGrid : V2Data
+    class V2DataOnGrid : V2Data, IEnumerable<DataItem>
     {
         public Grid1D[] grid_settings { get; set; }
         Complex[,] EM_array;
@@ -104,7 +104,7 @@ namespace FirstProject
          (data format in file named filename)
 
          descriptions   - (string)
-         EM_frequency   - (float)
+         EM_frequency   - (float with point, not comma)
          stride_OX, knot_count_OX   - (float, int)
          stride_OY, knot_count_OY   - (float, int)
          (x_1,1, y_1,1) ... (x_1,knot_count_OX, y_1,knot_count_OX)  - (float, float)
@@ -113,6 +113,14 @@ namespace FirstProject
            ...                                                              ...
          (x_knot_count_OY,1, y_knot_count_OY,1) ... (x_knot_count_OY,knot_count_OX, y_knot_count_OY,knot_count_OX)  - (float, float)
 
+         Example:
+
+         "date - 16/11/2020"
+         12
+         1 2
+         3 2
+         (-1.1, 1.2) (-1.3, 0.9)
+         (-4.1, 1.6) (3.4, -4.2)
         */
 
         public V2DataOnGrid(string filename) : base("", 0)
@@ -293,7 +301,45 @@ namespace FirstProject
             return output;
         }
 
+        // interface implementation
+        public IEnumerator GetEnumerator()
+        {
+            Vector2 coord = new Vector2(0.0f, 0.0f);
+            float x_stride = grid_settings[0].stride, y_stride = grid_settings[1].stride;
+            DataItem data_item;
+            for (int j = 0; j < grid_settings[1].knot_count; j++)
+            {
+                for (int i = 0; i < grid_settings[0].knot_count; i++)
+                {
+                    data_item = new DataItem(coord, EM_array[i, j]);
+                    yield return data_item;
+                    coord.X += x_stride;
+                }
+                coord.Y += y_stride;
+                coord.X = 0;
+            }
+        }
+
+        IEnumerator<DataItem> IEnumerable<DataItem>.GetEnumerator()
+        {
+            Vector2 coord = new Vector2(0.0f, 0.0f);
+            float x_stride = grid_settings[0].stride, y_stride = grid_settings[1].stride;
+            DataItem data_item;
+            for (int j = 0; j < grid_settings[1].knot_count; j++)
+            {
+                for (int i = 0; i < grid_settings[0].knot_count; i++)
+                {
+                    data_item = new DataItem(coord, EM_array[i, j]);
+                    yield return data_item;
+                    coord.X += x_stride;
+                }
+                coord.Y += y_stride;
+                coord.X = 0;
+            }
+        }
+
     }
+
 
     class V2DataCollection : V2Data
     {
@@ -473,10 +519,13 @@ namespace FirstProject
         {
             // ------------------------------
 
-            V2DataOnGrid data = new V2DataOnGrid("V2DataOnGrid.9txt");
+            V2DataOnGrid data = new V2DataOnGrid("V2DataOnGrid.txt");
             Console.WriteLine(data.ToLongString("N"));
 
-
+            foreach (DataItem item in data)
+            {
+                Console.WriteLine(item.ToString());
+            }
 
             // ------------------------------
 
