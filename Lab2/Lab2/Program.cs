@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Linq;
+using System.Globalization;
+using System.ComponentModel.Design;
 
 namespace FirstProject
 {
@@ -73,6 +76,8 @@ namespace FirstProject
         public abstract Complex[] NearAverage(float eps);
         public abstract string ToLongString();
         public abstract string ToLongString(string format);
+        public abstract double GetAverage();
+        public abstract IEnumerable<Vector2> GetCoords();
 
         public override string ToString()
         {
@@ -173,15 +178,32 @@ namespace FirstProject
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
+                throw e; 
             }
             finally
             {
-                Console.WriteLine("The 'try catch' block is finished.");
+                Console.WriteLine("  The 'try catch' block is finished.");
             }
 
+        }
 
+        public override double GetAverage()
+        {
+            double average = 0, sum = 0;
+            for (int j = 0; j < grid_settings[1].knot_count; j++)
+            {
+                for (int i = 0; i < grid_settings[0].knot_count; i++)
+                {
+                    sum += EM_array[i, j].Magnitude;
+                }
+            }
+            average = sum / grid_settings[0].knot_count * grid_settings[1].knot_count;
+            return average;
+        }
 
+        public override IEnumerable<Vector2> GetCoords()
+        {
+            yield return new Vector2(0f, 0f);
         }
 
         public void InitRandom(double minValue, double maxValue)
@@ -261,7 +283,7 @@ namespace FirstProject
 
         public override string ToString()
         {
-            string output = $"  type = V2DataOnGrid\n";
+            string output = $"  type = " + this.GetType() + "\n";
             output += $"knot_count on OX axis = {grid_settings[0].knot_count}; knot_count on OY axis = {grid_settings[1].knot_count}\n";
             output += $"stride on OX axis = {grid_settings[0].stride}; stride on OY axis = {grid_settings[1].stride}\n";
             output += base.ToString();
@@ -279,12 +301,14 @@ namespace FirstProject
                 }
                 output += "\n";
             }
+            output += "\n";
+
             return output;
         }
 
         public override string ToLongString(string format)
         {
-            string output = "  type = V2DataOnGrid\n";
+            string output = $"  type = " + this.GetType() + "\n";
             output += base.ToString(format);
             output += "grid_settings on OX axis: " + grid_settings[0].ToString(format);
             output += "grid_settings on OY axis: " + grid_settings[1].ToString(format);
@@ -297,6 +321,7 @@ namespace FirstProject
                 }
                 output += "\n";
             }
+            output += "\n";
 
             return output;
         }
@@ -340,14 +365,24 @@ namespace FirstProject
 
     }
 
-
-    class V2DataCollection : V2Data
+    class V2DataCollection : V2Data, IEnumerable<DataItem>
     {
         public List<DataItem> EM_list { get; set; }
+
+        public override IEnumerable<Vector2> GetCoords()
+        {
+            foreach (DataItem item in EM_list)
+                yield return item.grid_coord;
+        }
 
         public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
         {
             EM_list = new List<DataItem>();
+        }
+
+        public override double GetAverage()
+        {
+            return EM_list.Average<DataItem>(x => x.EM_value.Magnitude);
         }
 
         public void InitRandom(int nItems, float xmax, float ymax, double minValue, double maxValue)
@@ -404,7 +439,7 @@ namespace FirstProject
 
         public override string ToString()
         {
-            string output = $"  type = V2DataCollection\n";
+            string output = $"  type = " + this.GetType() + "\n";
             output += $"knot_count = {EM_list.Count}\n";
             output += base.ToString();
             return output;
@@ -416,26 +451,62 @@ namespace FirstProject
 
             for (int i = 0; i < EM_list.Count; i++)
                 output += EM_list[i].ToString();
-            
+            output += "\n";
+
             return output;
         }
 
         public override string ToLongString(string format)
         {
-            string output = "  type = V2DataCollection\n";
+            string output = $"  type = " + this.GetType() + "\n";
             output += base.ToString(format);
 
             for (int i = 0; i < EM_list.Count; i++)
                 output += EM_list[i].ToString(format);
+            output += "\n";
 
             return output;
+        }
+
+        // interface implementation
+        public IEnumerator GetEnumerator()
+        {
+            return EM_list.GetEnumerator();
+        }
+
+        IEnumerator<DataItem> IEnumerable<DataItem>.GetEnumerator()
+        {
+            return EM_list.GetEnumerator();
         }
     }
 
     class V2MainCollection : IEnumerable<V2Data>
     {
         private List<V2Data> V2data_list;
-        public int Count { get { return V2data_list.Count; } }
+        public int GetCount { get { return V2data_list.Count; } }
+        public double GetAverage { get { return V2data_list.Average<V2Data>(x => x.GetAverage()); } }
+        public double GetNearAverage
+        {
+            get
+            {
+                Console.WriteLine("  Value closest to the average value of all elements");
+                V2Data item = V2data_list.OrderBy(x => x.EM_frequency).First();
+                return item.EM_frequency;
+            } 
+        }
+        public IEnumerable<Vector2> GetValue 
+        {
+            get
+            {
+                Console.WriteLine("  Coordinates of all elements in V2DataCollection members only");
+                IEnumerable<IEnumerable<Vector2>> query =
+                    from data in V2data_list
+                    where data.GetType().Equals(typeof(V2DataCollection))
+                    select data.GetCoords();
+
+                return query.SelectMany(x => x);
+            }
+        }
 
         public V2MainCollection()
         {
@@ -450,8 +521,8 @@ namespace FirstProject
         public void AddDefaults()
         {
             // random init 
-            //V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 1.0f, new Grid1D(1, 2), new Grid1D(2, 3));
-           // data_grid.InitRandom(-10.0, -5.0);
+            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(1, 2), new Grid1D(2, 3));
+            data_grid.InitRandom(-10.0, -5.0);
 
             V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
             data_collection_1.InitRandom(3, 1.0f, 2.0f, 1.0f, 5.0f);
@@ -459,7 +530,7 @@ namespace FirstProject
             V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
             data_collection_2.InitRandom(5, 10.0f, 20.0f, -2.0f, 2.0f);
 
-           // V2data_list.Add(data_grid);
+            V2data_list.Add(data_grid);
             V2data_list.Add(data_collection_1);
             V2data_list.Add(data_collection_2);
         }
@@ -483,19 +554,21 @@ namespace FirstProject
 
         public override string ToString()
         {
-            string output = $"  type = V2MainCollection\n";
-            for (int i = 0; i < V2data_list.Count; i++)
-            {
+            string output = $"  type = " + this.GetType() + "\n";
+
+            for (int i = 0; i < V2data_list.Count; i++)      
                 output += V2data_list[i].ToString() + "\n";
-            }
+            
             return output;
         }
 
-        public string ToLongString(string format)
+        public string ToLongString(string format = "G")
         {
             string output = "";
+
             for (int i = 0; i < V2data_list.Count; i++)
-                output += V2data_list[i].ToString(format);
+                output += V2data_list[i].ToLongString(format);
+
             return output;
         }
 
@@ -519,13 +592,27 @@ namespace FirstProject
         {
             // ------------------------------
 
-            V2DataOnGrid data = new V2DataOnGrid("V2DataOnGrid.txt");
-            Console.WriteLine(data.ToLongString("N"));
-
-            foreach (DataItem item in data)
+            try
             {
-                Console.WriteLine(item.ToString());
+                V2DataOnGrid data_on_grid = new V2DataOnGrid("V2DataOnGrid.txt");
+                Console.WriteLine(data_on_grid.ToLongString("N"));
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+                return;
+            }
+
+            V2MainCollection main_collection = new V2MainCollection();
+            main_collection.AddDefaults();
+            Console.WriteLine(main_collection.ToLongString());
+
+            foreach (Vector2 coord in main_collection.GetValue)
+            {
+                Console.WriteLine(coord);
+            }
+
+            Console.WriteLine(main_collection.GetNearAverage);
 
             // ------------------------------
 
