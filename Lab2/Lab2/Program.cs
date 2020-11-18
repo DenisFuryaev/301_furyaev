@@ -24,7 +24,9 @@ namespace FirstProject
 
         public override string ToString()
         {
-            return $"coordinate - ({grid_coord.X}, {grid_coord.Y}); value = {EM_value}\n";
+            string output = "coordinates = " + grid_coord.ToString() + "; ";
+            output += "value = " + EM_value.ToString() + ";\n";
+            return output;
         }
 
         public string ToString(string format)
@@ -78,6 +80,7 @@ namespace FirstProject
         public abstract string ToLongString(string format);
         public abstract double GetAverage();
         public abstract IEnumerable<Vector2> GetCoords();
+        public abstract IEnumerable<DataItem> GetDataItem();
 
         public override string ToString()
         {
@@ -247,6 +250,12 @@ namespace FirstProject
             return data_collection;
         }
 
+        public override IEnumerable<DataItem> GetDataItem()
+        {
+            V2DataCollection temp = (V2DataCollection)this;
+            return temp.GetDataItem();
+        }
+
         public override Complex[] NearAverage(float eps)
         {
             double mean_real = 0, sum_real = 0;
@@ -286,7 +295,7 @@ namespace FirstProject
             string output = $"  type = " + this.GetType() + "\n";
             output += $"knot_count on OX axis = {grid_settings[0].knot_count}; knot_count on OY axis = {grid_settings[1].knot_count}\n";
             output += $"stride on OX axis = {grid_settings[0].stride}; stride on OY axis = {grid_settings[1].stride}\n";
-            output += base.ToString();
+            output += base.ToString() + "\n";
             return output;
         }
 
@@ -297,7 +306,7 @@ namespace FirstProject
             {
                 for (int i = 0; i < grid_settings[0].knot_count; i++)
                 {
-                    output += EM_array[i, j].ToString() + " ";
+                    output += EM_array[i, j].ToString() + "  magnitude = " + EM_array[i, j].Magnitude.ToString();
                 }
                 output += "\n";
             }
@@ -317,7 +326,7 @@ namespace FirstProject
             {
                 for (int i = 0; i < grid_settings[0].knot_count; i++)
                 {
-                    output += EM_array[i, j].ToString(format) + " ";
+                    output += EM_array[i, j].ToString(format) + "  magnitude = " + EM_array[i, j].Magnitude.ToString(format);
                 }
                 output += "\n";
             }
@@ -373,6 +382,12 @@ namespace FirstProject
         {
             foreach (DataItem item in EM_list)
                 yield return item.grid_coord;
+        }
+
+        public override IEnumerable<DataItem> GetDataItem()
+        {
+            foreach (DataItem item in EM_list)
+                yield return item;
         }
 
         public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
@@ -441,7 +456,7 @@ namespace FirstProject
         {
             string output = $"  type = " + this.GetType() + "\n";
             output += $"knot_count = {EM_list.Count}\n";
-            output += base.ToString();
+            output += base.ToString() + "\n";
             return output;
         }
 
@@ -485,13 +500,19 @@ namespace FirstProject
         private List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
         public double GetAverage { get { return V2data_list.Average<V2Data>(x => x.GetAverage()); } }
-        public double GetNearAverage
+        public DataItem GetNearAverage
         {
             get
             {
-                Console.WriteLine("  Value closest to the average value of all elements");
-                V2Data item = V2data_list.OrderBy(x => x.EM_frequency).First();
-                return item.EM_frequency;
+                Console.WriteLine($"  Measurmment with magnitude, closest to the average magnitude of all measurmments, where average magnitude = {GetAverage}");
+
+                IEnumerable<DataItem> query =
+                     from data in V2data_list
+                     from item in data.GetDataItem()
+                     orderby (Math.Abs(item.EM_value.Magnitude - GetAverage)) ascending
+                     select item;
+
+                return query.First();
             } 
         }
         public IEnumerable<Vector2> GetValue 
@@ -499,6 +520,7 @@ namespace FirstProject
             get
             {
                 Console.WriteLine("  Coordinates of all elements in V2DataCollection members only");
+
                 IEnumerable<IEnumerable<Vector2>> query =
                     from data in V2data_list
                     where data.GetType().Equals(typeof(V2DataCollection))
@@ -521,14 +543,14 @@ namespace FirstProject
         public void AddDefaults()
         {
             // random init 
-            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(1, 2), new Grid1D(2, 3));
+            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(1, 1), new Grid1D(2, 1));
             data_grid.InitRandom(-10.0, -5.0);
 
             V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
-            data_collection_1.InitRandom(3, 1.0f, 2.0f, 1.0f, 5.0f);
+            data_collection_1.InitRandom(1, 1.0f, 2.0f, 1.0f, 5.0f);
 
             V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
-            data_collection_2.InitRandom(5, 10.0f, 20.0f, -2.0f, 2.0f);
+            data_collection_2.InitRandom(1, 10.0f, 20.0f, -2.0f, 2.0f);
 
             V2data_list.Add(data_grid);
             V2data_list.Add(data_collection_1);
@@ -558,7 +580,8 @@ namespace FirstProject
 
             for (int i = 0; i < V2data_list.Count; i++)      
                 output += V2data_list[i].ToString() + "\n";
-            
+            output += "\n";
+
             return output;
         }
 
@@ -568,6 +591,7 @@ namespace FirstProject
 
             for (int i = 0; i < V2data_list.Count; i++)
                 output += V2data_list[i].ToLongString(format);
+            output += "\n";
 
             return output;
         }
