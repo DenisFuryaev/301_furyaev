@@ -167,10 +167,7 @@ namespace FirstProject
                 base.info = info;
                 base.EM_frequency = EM_frequency;
             }
-            catch(Exception e)
-            {
-                throw e; 
-            }
+
             finally
             {
                 Console.WriteLine("  < The 'try catch' block is finished > \n");
