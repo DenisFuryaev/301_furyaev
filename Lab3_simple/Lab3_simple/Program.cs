@@ -73,7 +73,7 @@ namespace Lab3_simple
             set
             {
                 info_ = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Frequency"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Info"));
             }
         
         }
@@ -575,7 +575,8 @@ namespace Lab3_simple
 
         void PropertyChangedEventHandler(object sender, PropertyChangedEventArgs a)
         {
-            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.ItemChanged, 0.0f));
+            Console.WriteLine($"--- Property changed - property name = {a.PropertyName}\n");
+            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.ItemChanged, 1.0f));
         }
 
         public void Add(V2Data item)
