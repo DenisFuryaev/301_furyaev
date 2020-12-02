@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
+using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Lab3_simple
 {
@@ -48,48 +50,69 @@ namespace Lab3_simple
 
             public override string ToString()
             {
-                return $"stride = {stride}; knot_count = {knot_count}\n";
+                return $"  stride = {stride}; knot_count = {knot_count}\n";
             }
 
             public string ToString(string format)
             {
-                string output = "stride = " + stride.ToString(format) + "; ";
-                output += "knot_count = " + knot_count.ToString() + ";\n";
+                string output = "  stride = " + stride.ToString(format) + "; ";
+                output += "  knot_count = " + knot_count.ToString() + ";\n";
                 return output;
             }
         }
 
     // abstract base class
-    abstract class V2Data
+    abstract class V2Data: INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string info_;
+        public string info
         {
-            public string info { get; set; }
-            public double EM_frequency { get; set; }
-
-            public V2Data(string info, double EM_frequency)
+            get { return info_; }
+            set
             {
-                this.info = info;
-                this.EM_frequency = EM_frequency;
+                info_ = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Frequency"));
             }
-
-            public abstract Complex[] NearAverage(float eps);
-            public abstract string ToLongString();
-            public abstract string ToLongString(string format);
-            public abstract double GetAverage();
-            public abstract IEnumerable<Vector2> GetCoords();
-            public abstract IEnumerable<DataItem> GetDataItem();
-
-            public override string ToString()
+        
+        }
+        public double EM_frequency_;
+        public double EM_frequency
+        { 
+            get { return EM_frequency_; } 
+            set 
             {
-                return $"info = {info}; EM_frequency = {EM_frequency}\n";
-            }
-
-            public string ToString(string format)
-            {
-                string output = "info = " + info + "; ";
-                output += "EM_frequency = " + EM_frequency.ToString(format) + ";\n";
-                return output;
+                EM_frequency_ = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Frequency"));
             }
         }
+
+        public V2Data(string info, double EM_frequency)
+        {
+            this.info = info;
+            this.EM_frequency = EM_frequency;
+        }
+
+        public abstract Complex[] NearAverage(float eps);
+        public abstract string ToLongString();
+        public abstract string ToLongString(string format);
+        public abstract double GetAverage();
+        public abstract IEnumerable<Vector2> GetCoords();
+        public abstract IEnumerable<DataItem> GetDataItem();
+
+        public override string ToString()
+        {
+            return $"  info = {info}; EM_frequency = {EM_frequency}\n";
+        }
+
+        public string ToString(string format)
+        {
+            string output = "  info = " + info + "; ";
+            output += "  EM_frequency = " + EM_frequency.ToString(format) + ";\n";
+            return output;
+        }
+    }
 
     class V2DataOnGrid : V2Data, IEnumerable<DataItem>
         {
@@ -449,7 +472,7 @@ namespace Lab3_simple
             public override string ToString()
             {
                 string output = $"  type = " + this.GetType() + "\n";
-                output += $"knot_count = {EM_list.Count}\n";
+                output += $"  knot_count = {EM_list.Count}\n";
                 output += base.ToString();
                 return output;
             }
@@ -487,123 +510,6 @@ namespace Lab3_simple
             }
         }
 
-    class V2MainCollection : IEnumerable<V2Data>
-        {
-            private List<V2Data> V2data_list;
-            public int GetCount { get { return V2data_list.Count; } }
-            public double GetAverage { get { return V2data_list.Average<V2Data>(x => x.GetAverage()); } }
-            public DataItem GetNearAverage
-            {
-                get
-                {
-                    Console.WriteLine($"  Measurmment with magnitude, closest to the average magnitude of all measurmments, where average magnitude = {GetAverage}");
-
-                    IEnumerable<DataItem> query =
-                         from data in V2data_list
-                         from item in data.GetDataItem()
-                         orderby (Math.Abs(item.EM_value.Magnitude - GetAverage)) ascending
-                         select item;
-
-                    return query.First();
-                }
-            }
-            public IEnumerable<Vector2> GetValue
-            {
-                get
-                {
-                    Console.WriteLine("  Coordinates of all elements in V2DataCollection members only");
-
-                    IEnumerable<IEnumerable<Vector2>> query =
-                        from data in V2data_list
-                        where data.GetType().Equals(typeof(V2DataCollection))
-                        select data.GetCoords();
-
-                    return query.SelectMany(x => x);
-                }
-            }
-
-            public V2MainCollection()
-            {
-                V2data_list = new List<V2Data>();
-            }
-
-            public void Add(V2Data item)
-            {
-                V2data_list.Add(item);
-            }
-
-            public void AddDefaults()
-            {
-                // random init 
-                V2DataOnGrid data_grid_1 = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(2, 2), new Grid1D(3, 2));
-                data_grid_1.InitRandom(-10.0, 15.0);
-                V2DataOnGrid data_grid_2 = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(1, 0), new Grid1D(2, 0));
-                data_grid_2.InitRandom(-10.0, 15.0);
-
-
-                V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
-                data_collection_1.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
-                V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
-                data_collection_2.InitRandom(2, 10.0f, 20.0f, -2.0f, 2.0f);
-                V2DataCollection data_collection_3 = new V2DataCollection("data_collection_1", 2.0f);
-                data_collection_3.InitRandom(4, 1.0f, 12.0f, 11.0f, 25.0f);
-
-                V2data_list.Add(data_grid_1);
-                V2data_list.Add(data_collection_1);
-                V2data_list.Add(data_collection_2);
-                V2data_list.Add(data_grid_2);
-                V2data_list.Add(data_collection_3);
-            }
-
-            public bool Remove(string id, double w)
-            {
-                bool return_value = false;
-
-                for (int i = 0; i < V2data_list.Count; i++)
-                {
-                    if ((V2data_list[i].info == id) && (V2data_list[i].EM_frequency == w))
-                    {
-                        V2data_list.Remove(V2data_list[i]);
-                        return_value = true;
-                        i--;
-                    }
-
-                }
-                return return_value;
-            }
-
-            public override string ToString()
-            {
-                string output = $"  type = " + this.GetType() + "\n";
-
-                for (int i = 0; i < V2data_list.Count; i++)
-                    output += V2data_list[i].ToString() + "\n";
-
-                return output;
-            }
-
-            public string ToLongString(string format = "G")
-            {
-                string output = "";
-
-                for (int i = 0; i < V2data_list.Count; i++)
-                    output += V2data_list[i].ToLongString(format) + "\n";
-
-                return output;
-            }
-
-            // interface implementation
-            public IEnumerator GetEnumerator()
-            {
-                return V2data_list.GetEnumerator();
-            }
-
-            IEnumerator<V2Data> IEnumerable<V2Data>.GetEnumerator()
-            {
-                return V2data_list.GetEnumerator();
-            }
-        }
-
     enum ChangeInfo { ItemChanged, Add, Remove, Replace };
     class DataChangedEventArgs
     {
@@ -623,9 +529,158 @@ namespace Lab3_simple
             return output;
         }
     }
+    
+    class V2MainCollection : IEnumerable<V2Data>
+    {
+        private List<V2Data> V2data_list;
+        public int GetCount { get { return V2data_list.Count; } }
+        public double GetAverage { get { return V2data_list.Average<V2Data>(x => x.GetAverage()); } }
+        public DataItem GetNearAverage
+        {
+            get
+            {
+                Console.WriteLine($"  Measurmment with magnitude, closest to the average magnitude of all measurmments, where average magnitude = {GetAverage}");
+
+                IEnumerable<DataItem> query =
+                     from data in V2data_list
+                     from item in data.GetDataItem()
+                     orderby (Math.Abs(item.EM_value.Magnitude - GetAverage)) ascending
+                     select item;
+
+                return query.First();
+            }
+        }
+        public IEnumerable<Vector2> GetValue
+        {
+            get
+            {
+                Console.WriteLine("  Coordinates of all elements in V2DataCollection members only");
+
+                IEnumerable<IEnumerable<Vector2>> query =
+                    from data in V2data_list
+                    where data.GetType().Equals(typeof(V2DataCollection))
+                    select data.GetCoords();
+
+                return query.SelectMany(x => x);
+            }
+        }
+
+        public delegate void DataChangedEventHandler(object sender, DataChangedEventArgs args);
+        public event DataChangedEventHandler DataChanged;
+
+        public V2MainCollection()
+        {
+            V2data_list = new List<V2Data>();
+        }
+
+        void PropertyChangedEventHandler(object sender, PropertyChangedEventArgs a)
+        {
+            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.ItemChanged, 0.0f));
+        }
+
+        public void Add(V2Data item)
+        {
+            item.PropertyChanged += PropertyChangedEventHandler;
+            V2data_list.Add(item);
+            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Add, item.EM_frequency));
+        }
+
+        public bool Remove(string id, double w)
+        {
+            bool return_value = false;
+
+            for (int i = 0; i < V2data_list.Count; i++)
+            {
+                if ((V2data_list[i].info == id) && (V2data_list[i].EM_frequency == w))
+                {
+                    DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Remove, V2data_list[i].EM_frequency));
+                    V2data_list[i].PropertyChanged -= PropertyChangedEventHandler;
+                    V2data_list.Remove(V2data_list[i]);
+                    return_value = true;
+                    i--;
+                }
+
+            }
+            return return_value;
+        }
+
+        public V2Data this[int i]
+        {
+            get { return V2data_list[i]; }
+            set
+            {
+                //Console.WriteLine("here");
+                V2data_list[i] = value;
+                value.PropertyChanged += PropertyChangedEventHandler;
+                DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Replace, value.EM_frequency));
+            }
+        }
+
+        public void AddDefaults()
+        {
+            // random init 
+            V2DataOnGrid data_grid_1 = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(2, 2), new Grid1D(3, 2));
+            data_grid_1.InitRandom(-10.0, 15.0);
+            V2DataOnGrid data_grid_2 = new V2DataOnGrid("data_grid_2", 6.0f, new Grid1D(1, 0), new Grid1D(2, 0));
+            data_grid_2.InitRandom(-10.0, 15.0);
+
+
+            V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
+            data_collection_1.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
+            V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
+            data_collection_2.InitRandom(2, 10.0f, 20.0f, -2.0f, 2.0f);
+            V2DataCollection data_collection_3 = new V2DataCollection("data_collection_1", 2.0f);
+            data_collection_3.InitRandom(4, 1.0f, 12.0f, 11.0f, 25.0f);
+
+            V2data_list.Add(data_grid_1);
+            V2data_list.Add(data_collection_1);
+            V2data_list.Add(data_collection_2);
+            V2data_list.Add(data_grid_2);
+            V2data_list.Add(data_collection_3);
+        }
+
+        public override string ToString()
+        {
+            string output = $"  type = " + this.GetType() + "\n";
+
+            for (int i = 0; i < V2data_list.Count; i++)
+                output += V2data_list[i].ToString() + "\n";
+
+            return output;
+        }
+
+        public string ToLongString(string format = "G")
+        {
+            string output = "";
+
+            for (int i = 0; i < V2data_list.Count; i++)
+                output += V2data_list[i].ToLongString(format) + "\n";
+
+            return output;
+        }
+
+        // interface implementation
+        public IEnumerator GetEnumerator()
+        {
+            return V2data_list.GetEnumerator();
+        }
+
+        IEnumerator<V2Data> IEnumerable<V2Data>.GetEnumerator()
+        {
+            return V2data_list.GetEnumerator();
+        }
+    }
+
 
     class Program
     {
+
+        static void HandleDataChanged(object sender, DataChangedEventArgs args)
+        {
+            Console.WriteLine($" Data changed - frequency = {args.frequency}, action = {args.change_info}\n");
+        }
+        
+
         static void Main(string[] args)
         {
             // ------------------------------
@@ -633,6 +688,28 @@ namespace Lab3_simple
             try
             {
 
+                V2MainCollection main_collection = new V2MainCollection();
+                
+                main_collection.DataChanged += HandleDataChanged;
+
+                V2DataOnGrid data_grid_1 = new V2DataOnGrid("data_grid_1", 1.0f, new Grid1D(2, 2), new Grid1D(3, 2));
+                data_grid_1.InitRandom(-10.0, 15.0);
+                V2DataOnGrid data_grid_2 = new V2DataOnGrid("data_grid_2", 8.0f, new Grid1D(1, 2), new Grid1D(4, 2));
+                data_grid_2.InitRandom(-10.0, 15.0);
+                V2DataCollection data_collection_1 = new V2DataCollection("data_collection_1", 2.0f);
+                data_collection_1.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
+                V2DataCollection data_collection_2 = new V2DataCollection("data_collection_2", 3.0f);
+                data_collection_2.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
+
+                main_collection.Add(data_grid_1);
+                main_collection.Add(data_collection_1);
+                main_collection[1].EM_frequency = 5.0f;
+                main_collection.Add(data_collection_2);
+                main_collection.Remove("data_collection_1", 5.0f);
+                main_collection[0].info = "changed info";
+                main_collection[1] = main_collection[0];
+
+                Console.WriteLine(main_collection.ToString());
             }
             catch (Exception e)
             {
