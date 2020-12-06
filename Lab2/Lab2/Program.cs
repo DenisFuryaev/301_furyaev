@@ -495,7 +495,19 @@ namespace FirstProject
     {
         private List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
-        public double GetAverage { get { return V2data_list.Average<V2Data>(x => x.GetAverage()); } }
+        public double GetAverage 
+        { 
+            get
+            { 
+                IEnumerable<DataItem> collection_query =
+                    from data in V2data_list
+                    from item in data.GetDataItem()
+                    select item;
+
+                return collection_query.Average(x => x.EM_value.Magnitude);
+            }
+        }
+
         public DataItem GetNearAverage
         {
             get
