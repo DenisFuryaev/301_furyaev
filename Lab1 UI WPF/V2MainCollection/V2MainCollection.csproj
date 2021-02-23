@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Lab2">
+      <HintPath>..\..\..\C#\Homework_3_course\Lab2\Lab2\obj\Debug\netcoreapp3.1\Lab2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
