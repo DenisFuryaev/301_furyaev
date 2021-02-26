@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
 
-namespace V2MainCollection
+namespace MyLibrary
 {
 
     // grid item type
-    struct DataItem
+    public struct DataItem
     {
         public Vector2 grid_coord { get; set; }
         public Complex EM_value;
@@ -61,7 +62,7 @@ namespace V2MainCollection
     }
 
     // abstract base class
-    abstract class V2Data
+     public abstract class V2Data
     {
         public string info { get; set; }
         public double EM_frequency { get; set; }
@@ -92,7 +93,7 @@ namespace V2MainCollection
         }
     }
 
-    class V2DataOnGrid : V2Data, IEnumerable<DataItem>
+     class V2DataOnGrid : V2Data, IEnumerable<DataItem>
     {
         public Grid1D[] grid_settings { get; set; }
         Complex[,] EM_array;
@@ -366,7 +367,7 @@ namespace V2MainCollection
 
     }
 
-    class V2DataCollection : V2Data, IEnumerable<DataItem>
+     class V2DataCollection : V2Data, IEnumerable<DataItem>
     {
         public List<DataItem> EM_list { get; set; }
 
@@ -488,8 +489,10 @@ namespace V2MainCollection
         }
     }
 
-    class V2MainCollection : IEnumerable<V2Data>
+    public class V2MainCollection : IEnumerable<V2Data>, INotifyCollectionChanged
     {
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
         private List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
         public double GetAverage
@@ -540,9 +543,33 @@ namespace V2MainCollection
             V2data_list = new List<V2Data>();
         }
 
-        public void Add(V2Data item)
+        private void OnCollectionChanged(NotifyCollectionChangedAction action)
+        {
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+        }
+
+        private void Add(V2Data item)
         {
             V2data_list.Add(item);
+            OnCollectionChanged(NotifyCollectionChangedAction.Add);
+        }
+
+        private bool Remove(string id, double w)
+        {
+            bool return_value = false;
+
+            for (int i = 0; i < V2data_list.Count; i++)
+            {
+                if ((V2data_list[i].info == id) && (V2data_list[i].EM_frequency == w))
+                {
+                    V2data_list.Remove(V2data_list[i]);
+                    OnCollectionChanged(NotifyCollectionChangedAction.Remove);
+                    return_value = true;
+                    i--;
+                }
+
+            }
+            return return_value;
         }
 
         public void AddDefaults()
@@ -561,28 +588,19 @@ namespace V2MainCollection
             V2DataCollection data_collection_3 = new V2DataCollection("data_collection_1", 2.0f);
             data_collection_3.InitRandom(4, 1.0f, 12.0f, 11.0f, 25.0f);
 
-            V2data_list.Add(data_grid_1);
-            V2data_list.Add(data_collection_1);
-            V2data_list.Add(data_collection_2);
-            V2data_list.Add(data_grid_2);
-            V2data_list.Add(data_collection_3);
+            Add(data_grid_1);
+            Add(data_grid_1);
+            Add(data_collection_1);
+            Add(data_collection_2);
+            Add(data_grid_2);
+            Add(data_collection_3);
         }
 
-        public bool Remove(string id, double w)
+        public void AddDefaultV2DataCollection()
         {
-            bool return_value = false;
-
-            for (int i = 0; i < V2data_list.Count; i++)
-            {
-                if ((V2data_list[i].info == id) && (V2data_list[i].EM_frequency == w))
-                {
-                    V2data_list.Remove(V2data_list[i]);
-                    return_value = true;
-                    i--;
-                }
-
-            }
-            return return_value;
+            V2DataCollection data_collection = new V2DataCollection("data_collection_1", 2.0f);
+            data_collection.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
+            Add(data_collection);
         }
 
         public override string ToString()

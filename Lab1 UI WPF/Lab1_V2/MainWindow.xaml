@@ -3,12 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Lab1_V2"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="V2DataCollection" Height="450" Width="800">
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20*"/>
+            <RowDefinition Height="20"/>
             <RowDefinition Height="400*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -20,13 +20,13 @@
 
         <Menu Grid.Row="0" Grid.ColumnSpan="3">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" />
+                <MenuItem Header="_New" Click="NewMenuItemClicked" />
                 <MenuItem Header="_Open" />
                 <MenuItem Header="_Save" />
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Add Defaults" />
-                <MenuItem Header="_Add Default V2DataCollection" />
+                <MenuItem Header="_Add Defaults" Click="AddDefaultsClicked" />
+                <MenuItem Header="_Add Default V2DataCollection" Click="AddDefaultV2DataCollectionClicked" />
                 <MenuItem Header="_Add Default V2DataOnGrid" />
                 <MenuItem Header="_Add Element from File" />
                 <Separator />
@@ -34,9 +34,14 @@
             </MenuItem>
         </Menu>
 
-        <ListBox x:Name="ListBox_Main" Margin="10,10,10,10" Grid.Column="2" Grid.Row="1" />
-        <ListBox x:Name="ListBox_DataCollection" Margin="10,10,10,10" Grid.Column="0" Grid.Row="1" />
-        <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="1" Grid.Row="1" />
+        <ListBox x:Name="ListBox_Main" Margin="10,10,10,10" Grid.Column="0" Grid.Row="1"
+                    ItemsSource="{Binding main_collection}" DisplayMemberPath="info"
+                    IsSynchronizedWithCurrentItem="True"/>
 
+        <ListBox x:Name="ListBox_DataCollection" Margin="10,10,10,10" Grid.Column="1" Grid.Row="1" />
+        <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="2" Grid.Row="1" />
+        <TextBlock x:Name="TextBox"  Grid.Column="1" Grid.Row="0"
+                   Text="{Binding Path=GetCount}" />
     </Grid>
+    
 </Window>

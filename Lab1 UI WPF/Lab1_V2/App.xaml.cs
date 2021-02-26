@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using V2MainCollection;
+using MyLibrary;
 
 namespace Lab1_V2
 {
