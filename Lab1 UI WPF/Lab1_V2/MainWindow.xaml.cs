@@ -25,42 +25,41 @@ namespace Lab1_V2
     public partial class MainWindow : Window
     {
 
-        private V2MainCollection main_collection;
-
-        private void CollectionChangedEventHandler(object sender, NotifyCollectionChangedEventArgs args)
-        {
-            //Handle collection changed event
-            TextBox.Text = "debug text";
-        }
+        public V2MainCollection main_collection { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-
-
-            main_collection = new V2MainCollection();
-            this.DataContext = main_collection;
-            main_collection.CollectionChanged += CollectionChangedEventHandler;
-
-            ListBox_Main.DataContext = DataContext;
         }
 
         private void NewMenuItemClicked(object sender, RoutedEventArgs e)
         {
+            this.DataContext = null;
+            //main_collection = null;    
+            
             main_collection = new V2MainCollection();
+            this.DataContext = this;
         }
 
         private void AddDefaultsClicked(object sender, RoutedEventArgs e)
         {
             main_collection.AddDefaults();
-
-            //foreach (V2Data data in main_collection)
-            //    ListBox_Main.Items.Add(data);
         }
 
         private void AddDefaultV2DataCollectionClicked(object sender, RoutedEventArgs e)
         {
             main_collection.AddDefaultV2DataCollection();
+        }
+
+        private void AddDefaultV2DataOnGridClicked(object sender, RoutedEventArgs e)
+        {
+            main_collection.AddDefaultV2DataOnGrid();
+        }
+
+        private void RemoveClicked(object sender, RoutedEventArgs e)
+        {
+            int selected_index = ListBox_Main.SelectedIndex;
+            main_collection.Remove(selected_index);
         }
     }
 }

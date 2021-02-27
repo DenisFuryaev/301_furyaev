@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
+using System.ComponentModel;
 
 namespace MyLibrary
 {
@@ -489,9 +490,10 @@ namespace MyLibrary
         }
     }
 
-    public class V2MainCollection : IEnumerable<V2Data>, INotifyCollectionChanged
+    public class V2MainCollection : IEnumerable<V2Data>, INotifyCollectionChanged, INotifyPropertyChanged   
     {
         public event NotifyCollectionChangedEventHandler CollectionChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
@@ -541,35 +543,50 @@ namespace MyLibrary
         public V2MainCollection()
         {
             V2data_list = new List<V2Data>();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnPropertyChanged("GetCount");
         }
 
-        private void OnCollectionChanged(NotifyCollectionChangedAction action)
+        protected void OnPropertyChanged(string name = null)
         {
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, V2Data modified_item = null, int index = 0)
+        {
+            switch (action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, modified_item));
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action, modified_item, index));
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+                    break;
+            }
+            
         }
 
         private void Add(V2Data item)
         {
             V2data_list.Add(item);
-            OnCollectionChanged(NotifyCollectionChangedAction.Add);
+            OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
+            OnPropertyChanged("GetCount");
         }
 
-        private bool Remove(string id, double w)
+
+        public void Remove(int index)
         {
-            bool return_value = false;
-
-            for (int i = 0; i < V2data_list.Count; i++)
-            {
-                if ((V2data_list[i].info == id) && (V2data_list[i].EM_frequency == w))
-                {
-                    V2data_list.Remove(V2data_list[i]);
-                    OnCollectionChanged(NotifyCollectionChangedAction.Remove);
-                    return_value = true;
-                    i--;
-                }
-
-            }
-            return return_value;
+            V2Data removed_item = V2data_list[index];
+            V2data_list.Remove(V2data_list[index]);
+            OnCollectionChanged(NotifyCollectionChangedAction.Remove, removed_item, index);
+            OnPropertyChanged("GetCount");
         }
 
         public void AddDefaults()
@@ -598,9 +615,16 @@ namespace MyLibrary
 
         public void AddDefaultV2DataCollection()
         {
-            V2DataCollection data_collection = new V2DataCollection("data_collection_1", 2.0f);
+            V2DataCollection data_collection = new V2DataCollection("data_collection", 2.0f);
             data_collection.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
             Add(data_collection);
+        }
+
+        public void AddDefaultV2DataOnGrid()
+        {
+            V2DataOnGrid data_grid = new V2DataOnGrid("data_grid", 6.0f, new Grid1D(2, 2), new Grid1D(3, 2));
+            data_grid.InitRandom(-10.0, 15.0);
+            Add(data_grid);
         }
 
         public override string ToString()
