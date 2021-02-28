@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="V2DataCollection" Height="450" Width="800">
+        Title="V2DataCollection" Height="600" Width="1000">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -35,13 +35,26 @@
         </Menu>
 
         <ListBox x:Name="ListBox_Main" Margin="10,10,10,10" Grid.Column="0" Grid.Row="1"
-                    ItemsSource="{Binding main_collection}" DisplayMemberPath="info" SelectedItem="selected_item"
-                    IsSynchronizedWithCurrentItem="True"/>
+                ItemsSource="{Binding main_collection}" SelectedItem="selected_item"
+                IsSynchronizedWithCurrentItem="False"/>
 
-        <ListBox x:Name="ListBox_DataCollection" Margin="10,10,10,10" Grid.Column="1" Grid.Row="1" />
-        <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="2" Grid.Row="1" />
-        <TextBlock x:Name="TextBox_name" HorizontalAlignment="Left"  Grid.Column="1" Grid.Row="0" Text="Items in collection:" />
-        <TextBlock x:Name="TextBox_count" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="0" Text="{Binding main_collection.GetCount}" />
+        <ListBox x:Name="ListBox_DataCollection" Margin="10,10,10,10" Grid.Column="1" Grid.Row="1"
+                ItemsSource="{Binding collection_view}" DisplayMemberPath="info"
+                IsSynchronizedWithCurrentItem="False" />
+
+        <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="2" Grid.Row="1" 
+                ItemsSource="{Binding grid_view}" DisplayMemberPath="info"
+                IsSynchronizedWithCurrentItem="False" />
+        
+        <TextBlock x:Name="TextBox_count_name" HorizontalAlignment="Left"
+                Grid.Column="1" Grid.Row="0" Text="Items in collection:" />
+        <TextBlock x:Name="TextBox_count" HorizontalAlignment="Center"
+                Grid.Column="1" Grid.Row="0" Text="{Binding main_collection.GetCount}" />
+
+        <TextBlock x:Name="TextBox_average_name" HorizontalAlignment="Left"
+                Grid.Column="2" Grid.Row="0" Text="Average value:" />
+        <TextBlock x:Name="TextBox_average" HorizontalAlignment="Center"
+                Grid.Column="2" Grid.Row="0" Text="{Binding main_collection.GetAverage, StringFormat=N4}" />
     </Grid>
     
 </Window>

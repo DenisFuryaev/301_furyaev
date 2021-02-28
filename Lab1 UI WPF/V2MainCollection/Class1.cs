@@ -38,7 +38,7 @@ namespace MyLibrary
     }
 
     // grid settings
-    struct Grid1D
+    public struct Grid1D
     {
         public float stride { get; set; }
         public int knot_count { get; set; }
@@ -63,7 +63,7 @@ namespace MyLibrary
     }
 
     // abstract base class
-     public abstract class V2Data
+    public abstract class V2Data
     {
         public string info { get; set; }
         public double EM_frequency { get; set; }
@@ -94,9 +94,9 @@ namespace MyLibrary
         }
     }
 
-     class V2DataOnGrid : V2Data, IEnumerable<DataItem>
+    public class V2DataOnGrid : V2Data, IEnumerable<DataItem>
     {
-        public Grid1D[] grid_settings { get; set; }
+        private Grid1D[] grid_settings { get; set; }
         Complex[,] EM_array;
 
         /*
@@ -368,7 +368,7 @@ namespace MyLibrary
 
     }
 
-     class V2DataCollection : V2Data, IEnumerable<DataItem>
+    public class V2DataCollection : V2Data, IEnumerable<DataItem>
     {
         public List<DataItem> EM_list { get; set; }
 
@@ -497,6 +497,7 @@ namespace MyLibrary
 
         private List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
+
         public double GetAverage
         {
             get
@@ -506,7 +507,9 @@ namespace MyLibrary
                     from item in data.GetDataItem()
                     select item;
 
-                return collection_query.Average(x => x.EM_value.Magnitude);
+                if (collection_query.Count() != 0)
+                    return collection_query.Average(x => x.EM_value.Magnitude);
+                return 0;
             }
         }
 
@@ -545,6 +548,7 @@ namespace MyLibrary
             V2data_list = new List<V2Data>();
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             OnPropertyChanged("GetCount");
+            OnPropertyChanged("GetAverage");
         }
 
         protected void OnPropertyChanged(string name = null)
@@ -578,6 +582,7 @@ namespace MyLibrary
             V2data_list.Add(item);
             OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
             OnPropertyChanged("GetCount");
+            OnPropertyChanged("GetAverage");
         }
 
 
@@ -587,6 +592,7 @@ namespace MyLibrary
             V2data_list.Remove(V2data_list[index]);
             OnCollectionChanged(NotifyCollectionChangedAction.Remove, removed_item, index);
             OnPropertyChanged("GetCount");
+            OnPropertyChanged("GetAverage");
         }
 
         public void AddDefaults()
@@ -616,7 +622,7 @@ namespace MyLibrary
         public void AddDefaultV2DataCollection()
         {
             V2DataCollection data_collection = new V2DataCollection("data_collection", 2.0f);
-            data_collection.InitRandom(0, 10.0f, 20.0f, -11.0f, -5.0f);
+            data_collection.InitRandom(2, 10.0f, 20.0f, -11.0f, -5.0f);
             Add(data_collection);
         }
 

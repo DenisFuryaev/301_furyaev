@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using System.Collections.Specialized;
 
 using MyLibrary;
+using System.ComponentModel;
 
 namespace Lab1_V2
 {
@@ -26,6 +27,8 @@ namespace Lab1_V2
     {
 
         public V2MainCollection main_collection { get; set; }
+        public ICollectionView collection_view { get; set; }
+        public ICollectionView grid_view { get; set; }
 
         public MainWindow()
         {
@@ -35,10 +38,28 @@ namespace Lab1_V2
         private void NewMenuItemClicked(object sender, RoutedEventArgs e)
         {
             this.DataContext = null;
-            //main_collection = null;    
-            
+
             main_collection = new V2MainCollection();
+
+            collection_view = new CollectionViewSource() { Source = main_collection }.View;
+            collection_view.Filter = CollectionFilter;
+
+            grid_view = new CollectionViewSource() { Source = main_collection }.View;
+            grid_view.Filter = GridFilter;
+
             this.DataContext = this;
+        }
+
+        private bool CollectionFilter(object item)
+        {
+            V2Data data = item as V2Data;
+            return (data.GetType() == typeof(V2DataCollection));
+        }
+
+        private bool GridFilter(object item)
+        {
+            V2Data data = item as V2Data;
+            return (data.GetType() == typeof(V2DataOnGrid));
         }
 
         private void AddDefaultsClicked(object sender, RoutedEventArgs e)
