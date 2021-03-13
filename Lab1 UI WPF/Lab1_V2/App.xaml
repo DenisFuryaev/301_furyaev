@@ -1,7 +1,7 @@
-﻿<Application x:Class="Lab1_V2.App"
+﻿<Application x:Class="Lab1_V2_app.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Lab1_V2"
+             xmlns:local="clr-namespace:Lab1_V2_app"
              DispatcherUnhandledException="Application_DispatcherUnhandledException"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
