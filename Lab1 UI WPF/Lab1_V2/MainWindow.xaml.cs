@@ -17,22 +17,57 @@ using System.Collections.Specialized;
 
 using MyLibrary;
 using System.ComponentModel;
+using System.Windows.Controls.Primitives;
+using System.Globalization;
+using System.IO;
 
 namespace Lab1_V2
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+
+    public class DataConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+            var result = value as V2DataCollection;
+            //ObservableCollection<string> output = new ObservableCollection<string>();
+            //foreach (V2DataCollection data in result)
+            //{
+            //    foreach(DataItem item in data.EM_list)
+            //    {
+            //        output.Add(item.ToString());
+            //    }
+            //}
+
+            return result;
+
+            //V2DataCollection data = (V2DataCollection)value;
+            //string coords = data.grid_coord.X.ToString() + " " + data.grid_coord.Y.ToString();
+            //return data.EM_frequency;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return DependencyProperty.UnsetValue;
+        }
+    }
+
     public partial class MainWindow : Window
     {
 
         public V2MainCollection main_collection { get; set; }
         public ICollectionView collection_view { get; set; }
         public ICollectionView grid_view { get; set; }
+        public V2DataCollection selected_items { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+
         }
 
         private void NewMenuItemClicked(object sender, RoutedEventArgs e)
@@ -41,6 +76,8 @@ namespace Lab1_V2
 
             main_collection = new V2MainCollection();
 
+            listBox_details.ItemsSource = ListBox_DataCollection.SelectedItems;
+
             collection_view = new CollectionViewSource() { Source = main_collection }.View;
             collection_view.Filter = CollectionFilter;
 
@@ -48,6 +85,22 @@ namespace Lab1_V2
             grid_view.Filter = GridFilter;
 
             this.DataContext = this;
+        }
+
+        private void OpenMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog open_dialoge = new Microsoft.Win32.OpenFileDialog();
+            open_dialoge.ShowDialog();
+            string filename = open_dialoge.FileName;
+            main_collection.Load(filename);
+        }
+
+        private void SaveMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog save_dialoge = new Microsoft.Win32.SaveFileDialog();
+            save_dialoge.ShowDialog();
+            string filename = save_dialoge.FileName;
+            main_collection.Save(filename);
         }
 
         private bool CollectionFilter(object item)
@@ -79,8 +132,17 @@ namespace Lab1_V2
 
         private void RemoveClicked(object sender, RoutedEventArgs e)
         {
-            int selected_index = ListBox_Main.SelectedIndex;
-            main_collection.Remove(selected_index);
+            List<int> list = (from object obj in ListBox_Main.SelectedItems
+                              select ListBox_Main.Items.IndexOf(obj)).ToList();
+
+            // second selected item has index of 0, as a first (???)
+            foreach (int index in list)
+            {
+                main_collection.Remove(index);
+            }
+
+            //main_collection.Remove(ListBox_Main.SelectedIndex);
         }
+
     }
 }

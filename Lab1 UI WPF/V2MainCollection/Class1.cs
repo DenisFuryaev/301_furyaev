@@ -5,20 +5,46 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Linq;
 using System.ComponentModel;
+using System.Globalization;
+
+using System.Runtime.Serialization;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
 
 namespace MyLibrary
 {
-
     // grid item type
-    public struct DataItem
+    [Serializable]
+    public struct DataItem: ISerializable
     {
         public Vector2 grid_coord { get; set; }
-        public Complex EM_value;
+        public Complex EM_value { get; set; }
 
         public DataItem(Vector2 grid_coord, Complex EM_value)
         {
             this.grid_coord = grid_coord;
             this.EM_value = EM_value;
+        }
+
+        public DataItem(SerializationInfo info, StreamingContext context)
+        {
+            float grid_coord_X = info.GetSingle("grid_coord_X");
+            float grid_coord_Y = info.GetSingle("grid_coord_Y");
+            float EM_value_Real = info.GetSingle("EM_value_Real");
+            float EM_value_Imaginary = info.GetSingle("EM_value_Imaginary");
+
+            this.grid_coord = new Vector2(grid_coord_X, grid_coord_Y);
+            this.EM_value = new Complex(EM_value_Real, EM_value_Imaginary);
+            
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("grid_coord_X", this.grid_coord.X);
+            info.AddValue("grid_coord_Y", this.grid_coord.Y);
+            info.AddValue("EM_value_Real", this.EM_value.Real);
+            info.AddValue("EM_value_Imaginary", this.EM_value.Imaginary);
         }
 
         public override string ToString()
@@ -38,7 +64,8 @@ namespace MyLibrary
     }
 
     // grid settings
-    public struct Grid1D
+    [Serializable]
+    public struct Grid1D: ISerializable
     {
         public float stride { get; set; }
         public int knot_count { get; set; }
@@ -47,6 +74,18 @@ namespace MyLibrary
         {
             this.stride = stride;
             this.knot_count = knot_count;
+        }
+
+        public Grid1D(SerializationInfo info, StreamingContext context)
+        {
+            this.stride = info.GetSingle("stride");
+            this.knot_count = info.GetInt32("knot_count");
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("stride", this.stride);
+            info.AddValue("knot_count", this.knot_count);
         }
 
         public override string ToString()
@@ -63,7 +102,8 @@ namespace MyLibrary
     }
 
     // abstract base class
-    public abstract class V2Data
+    [Serializable]
+    public abstract class V2Data: ISerializable
     {
         public string info { get; set; }
         public double EM_frequency { get; set; }
@@ -72,6 +112,12 @@ namespace MyLibrary
         {
             this.info = info;
             this.EM_frequency = EM_frequency;
+        }
+
+        public V2Data(SerializationInfo info, StreamingContext context)
+        {
+            this.info = info.GetString("info");
+            this.EM_frequency = info.GetDouble("EM_frequency");
         }
 
         public abstract Complex[] NearAverage(float eps);
@@ -92,12 +138,19 @@ namespace MyLibrary
             output += "EM_frequency = " + EM_frequency.ToString(format) + ";\n";
             return output;
         }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("info", this.info);
+            info.AddValue("EM_frequency", this.EM_frequency);
+        }
     }
 
+    [Serializable]
     public class V2DataOnGrid : V2Data, IEnumerable<DataItem>
     {
-        private Grid1D[] grid_settings { get; set; }
-        Complex[,] EM_array;
+        public Grid1D[] grid_settings { get; set; }
+        public Complex[,] EM_array { get; set; }
 
         /*
          (data format in file named filename)
@@ -179,6 +232,28 @@ namespace MyLibrary
             grid_settings = new Grid1D[2];
             grid_settings[0] = OX_settings;
             grid_settings[1] = OY_settings;
+        }
+
+        public V2DataOnGrid(): base("", 0)
+        {
+            grid_settings = null;
+            EM_array = null;
+        }
+
+        //public V2DataOnGrid(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
+        //{
+        //    EM_array = null;
+        //}
+
+        //new public void GetObjectData(SerializationInfo info, StreamingContext context)
+        //{
+        //    info.AddValue("grid_settings", this.grid_settings);
+        //}
+
+        public void Add(Object value)
+        {
+            DataItem item = (DataItem)value;
+            EM_array[(int)item.grid_coord.X, (int)item.grid_coord.Y] = new Complex(item.EM_value.Real, item.EM_value.Imaginary);
         }
 
         public override double GetAverage()
@@ -368,8 +443,10 @@ namespace MyLibrary
 
     }
 
+    [Serializable]
     public class V2DataCollection : V2Data, IEnumerable<DataItem>
     {
+
         public List<DataItem> EM_list { get; set; }
 
         public override IEnumerable<Vector2> GetCoords()
@@ -384,9 +461,42 @@ namespace MyLibrary
                 yield return item;
         }
 
+        public V2DataCollection() : base("", 0)
+        {
+            EM_list = null; 
+        }
+
         public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
         {
             EM_list = new List<DataItem>();
+        }
+
+        //public V2DataCollection(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
+        //{
+        //    string name = "item";
+        //    int i = 0;
+        //    foreach (DataItem item in EM_list)
+        //    {
+        //        info.AddValue(name + i.ToString(), item);
+        //        i++;
+        //    }
+        //}
+
+        //new public void GetObjectData(SerializationInfo info, StreamingContext context)
+        //{
+        //    string name = "item";
+        //    int i = 0;
+        //    foreach (DataItem item in EM_list)
+        //    {
+        //        info.AddValue(name + i.ToString(), item);
+        //        i++;
+        //    }
+        //}
+
+        public void Add(Object value)
+        {
+            DataItem item = (DataItem)value;
+            EM_list.Add(item);
         }
 
         public override double GetAverage()
@@ -451,8 +561,12 @@ namespace MyLibrary
 
         public override string ToString()
         {
-            string output = $"  type = " + this.GetType() + "\n";
+            string output = $"type = " + this.GetType() + "\n";
             output += $"knot_count = {EM_list.Count}\n";
+            foreach (DataItem item in EM_list)
+            {
+                output += item.ToString() + "\n";
+            }
             output += base.ToString();
             return output;
         }
@@ -469,7 +583,7 @@ namespace MyLibrary
 
         public override string ToLongString(string format)
         {
-            string output = $"  type = " + this.GetType() + "\n";
+            string output = $"type = " + this.GetType() + "\n";
             output += "  " + base.ToString(format);
 
             for (int i = 0; i < EM_list.Count; i++)
@@ -495,7 +609,7 @@ namespace MyLibrary
         public event NotifyCollectionChangedEventHandler CollectionChanged;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private List<V2Data> V2data_list;
+        public List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
 
         public double GetAverage
@@ -551,6 +665,36 @@ namespace MyLibrary
             OnPropertyChanged("GetAverage");
         }
 
+        public void Save(string filename)
+        {
+            Stream stream = null;
+            try
+            {
+                stream = File.Open(filename, FileMode.Create);
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(stream, V2data_list);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
+        public void Load(string filename)
+        {
+            Stream stream = null;
+            try
+            {
+                stream = File.Open(filename, FileMode.Open);
+                BinaryFormatter formatter = new BinaryFormatter();
+                V2data_list = (List<V2Data>)formatter.Deserialize(stream);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+
         protected void OnPropertyChanged(string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -584,7 +728,6 @@ namespace MyLibrary
             OnPropertyChanged("GetCount");
             OnPropertyChanged("GetAverage");
         }
-
 
         public void Remove(int index)
         {
@@ -635,7 +778,7 @@ namespace MyLibrary
 
         public override string ToString()
         {
-            string output = $"  type = " + this.GetType() + "\n";
+            string output = $"type = " + this.GetType() + "\n";
 
             for (int i = 0; i < V2data_list.Count; i++)
                 output += V2data_list[i].ToString() + "\n";
@@ -665,42 +808,4 @@ namespace MyLibrary
         }
     }
 
-
-
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            // ------------------------------
-
-            try
-            {
-                Console.WriteLine("-------------- V2DataOnGrid red from text file --------------\n");
-                V2DataOnGrid data_on_grid = new V2DataOnGrid("V2DataOnGrid.txt");
-                Console.WriteLine(data_on_grid.ToLongString("N1"));
-                Console.WriteLine("-------------------------------------------------------------\n");
-
-                V2MainCollection main_collection = new V2MainCollection();
-                main_collection.AddDefaults();
-                Console.WriteLine(main_collection.ToLongString());
-
-                foreach (Vector2 coord in main_collection.GetValue)
-                {
-                    Console.WriteLine(coord);
-                }
-                Console.WriteLine("\n");
-
-                Console.WriteLine(main_collection.GetNearAverage.ToString("N2"));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("--------<ERROR: " + e.Message + ">--------");
-                return;
-            }
-
-            // ------------------------------
-
-
-        }
-    }
 }
