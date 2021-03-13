@@ -103,7 +103,7 @@ namespace MyLibrary
 
     // abstract base class
     [Serializable]
-    public abstract class V2Data: ISerializable
+    public abstract class V2Data
     {
         public string info { get; set; }
         public double EM_frequency { get; set; }
@@ -114,11 +114,11 @@ namespace MyLibrary
             this.EM_frequency = EM_frequency;
         }
 
-        public V2Data(SerializationInfo info, StreamingContext context)
-        {
-            this.info = info.GetString("info");
-            this.EM_frequency = info.GetDouble("EM_frequency");
-        }
+        //public V2Data(SerializationInfo info, StreamingContext context)
+        //{
+        //    this.info = info.GetString("info");
+        //    this.EM_frequency = info.GetDouble("EM_frequency");
+        //}
 
         public abstract Complex[] NearAverage(float eps);
         public abstract string ToLongString();
@@ -139,11 +139,11 @@ namespace MyLibrary
             return output;
         }
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("info", this.info);
-            info.AddValue("EM_frequency", this.EM_frequency);
-        }
+        //public void GetObjectData(SerializationInfo info, StreamingContext context)
+        //{
+        //    info.AddValue("info", this.info);
+        //    info.AddValue("EM_frequency", this.EM_frequency);
+        //}
     }
 
     [Serializable]
@@ -240,10 +240,10 @@ namespace MyLibrary
             EM_array = null;
         }
 
-        //public V2DataOnGrid(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
-        //{
-        //    EM_array = null;
-        //}
+        public V2DataOnGrid(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
+        {
+            //EM_array = null;
+        }
 
         //new public void GetObjectData(SerializationInfo info, StreamingContext context)
         //{
@@ -473,13 +473,14 @@ namespace MyLibrary
 
         //public V2DataCollection(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
         //{
+
+        //}
+
+        //public V2DataCollection(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
+        //{
         //    string name = "item";
         //    int i = 0;
-        //    foreach (DataItem item in EM_list)
-        //    {
-        //        info.AddValue(name + i.ToString(), item);
-        //        i++;
-        //    }
+
         //}
 
         //new public void GetObjectData(SerializationInfo info, StreamingContext context)
