@@ -62,6 +62,7 @@ namespace Lab1_V2
         public V2MainCollection main_collection { get; set; }
         public ICollectionView collection_view { get; set; }
         public ICollectionView grid_view { get; set; }
+        public ICollectionView main_view { get; set; }
         public V2DataCollection selected_items { get; set; }
 
         public MainWindow()
@@ -78,9 +79,9 @@ namespace Lab1_V2
 
             listBox_details.ItemsSource = ListBox_DataCollection.SelectedItems;
 
+            main_view = new CollectionViewSource() { Source = main_collection }.View;
             collection_view = new CollectionViewSource() { Source = main_collection }.View;
             collection_view.Filter = CollectionFilter;
-
             grid_view = new CollectionViewSource() { Source = main_collection }.View;
             grid_view.Filter = GridFilter;
 
@@ -93,6 +94,17 @@ namespace Lab1_V2
             open_dialoge.ShowDialog();
             string filename = open_dialoge.FileName;
             main_collection.Load(filename);
+
+            this.DataContext = null;
+            listBox_details.ItemsSource = ListBox_DataCollection.SelectedItems;
+
+            main_view = new CollectionViewSource() { Source = main_collection }.View;
+            collection_view = new CollectionViewSource() { Source = main_collection }.View;
+            collection_view.Filter = CollectionFilter;
+            grid_view = new CollectionViewSource() { Source = main_collection }.View;
+            grid_view.Filter = GridFilter;
+
+            this.DataContext = this;
         }
 
         private void SaveMenuItemClicked(object sender, RoutedEventArgs e)

@@ -65,7 +65,7 @@ namespace MyLibrary
 
     // grid settings
     [Serializable]
-    public struct Grid1D: ISerializable
+    public struct Grid1D
     {
         public float stride { get; set; }
         public int knot_count { get; set; }
@@ -76,17 +76,6 @@ namespace MyLibrary
             this.knot_count = knot_count;
         }
 
-        public Grid1D(SerializationInfo info, StreamingContext context)
-        {
-            this.stride = info.GetSingle("stride");
-            this.knot_count = info.GetInt32("knot_count");
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("stride", this.stride);
-            info.AddValue("knot_count", this.knot_count);
-        }
 
         public override string ToString()
         {
@@ -114,12 +103,6 @@ namespace MyLibrary
             this.EM_frequency = EM_frequency;
         }
 
-        //public V2Data(SerializationInfo info, StreamingContext context)
-        //{
-        //    this.info = info.GetString("info");
-        //    this.EM_frequency = info.GetDouble("EM_frequency");
-        //}
-
         public abstract Complex[] NearAverage(float eps);
         public abstract string ToLongString();
         public abstract string ToLongString(string format);
@@ -138,12 +121,6 @@ namespace MyLibrary
             output += "EM_frequency = " + EM_frequency.ToString(format) + ";\n";
             return output;
         }
-
-        //public void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    info.AddValue("info", this.info);
-        //    info.AddValue("EM_frequency", this.EM_frequency);
-        //}
     }
 
     [Serializable]
@@ -238,22 +215,6 @@ namespace MyLibrary
         {
             grid_settings = null;
             EM_array = null;
-        }
-
-        public V2DataOnGrid(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
-        {
-            //EM_array = null;
-        }
-
-        //new public void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    info.AddValue("grid_settings", this.grid_settings);
-        //}
-
-        public void Add(Object value)
-        {
-            DataItem item = (DataItem)value;
-            EM_array[(int)item.grid_coord.X, (int)item.grid_coord.Y] = new Complex(item.EM_value.Real, item.EM_value.Imaginary);
         }
 
         public override double GetAverage()
@@ -469,35 +430,6 @@ namespace MyLibrary
         public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
         {
             EM_list = new List<DataItem>();
-        }
-
-        //public V2DataCollection(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
-        //{
-
-        //}
-
-        //public V2DataCollection(SerializationInfo info, StreamingContext context) : base(info.GetString("info"), info.GetDouble("EM_frequency"))
-        //{
-        //    string name = "item";
-        //    int i = 0;
-
-        //}
-
-        //new public void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    string name = "item";
-        //    int i = 0;
-        //    foreach (DataItem item in EM_list)
-        //    {
-        //        info.AddValue(name + i.ToString(), item);
-        //        i++;
-        //    }
-        //}
-
-        public void Add(Object value)
-        {
-            DataItem item = (DataItem)value;
-            EM_list.Add(item);
         }
 
         public override double GetAverage()
