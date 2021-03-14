@@ -60,22 +60,38 @@ namespace Lab1_V2
     {
 
         public V2MainCollection main_collection { get; set; }
+        public ICollectionView main_view { get; set; }
         public ICollectionView collection_view { get; set; }
         public ICollectionView grid_view { get; set; }
-        public ICollectionView main_view { get; set; }
         public V2DataCollection selected_items { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            Closing += OnWindowClosing;
+        }
+
+        public void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            MessageBoxResult result;
+            if (main_collection.isModified)
+            {
+                result = MessageBox.Show("You have modified collection but didnt saved it.\n Do you wont to save it?", "Save or not?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        SaveMenuItemClicked(null, null);
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
+            }
 
         }
 
-        private void NewMenuItemClicked(object sender, RoutedEventArgs e)
+        private void UpdateBindings()
         {
             this.DataContext = null;
-
-            main_collection = new V2MainCollection();
 
             listBox_details.ItemsSource = ListBox_DataCollection.SelectedItems;
 
@@ -88,6 +104,11 @@ namespace Lab1_V2
             this.DataContext = this;
         }
 
+        private void NewMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            main_collection = new V2MainCollection();
+            UpdateBindings();
+        }
         private void OpenMenuItemClicked(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog open_dialoge = new Microsoft.Win32.OpenFileDialog();
@@ -95,18 +116,8 @@ namespace Lab1_V2
             string filename = open_dialoge.FileName;
             main_collection.Load(filename);
 
-            this.DataContext = null;
-            listBox_details.ItemsSource = ListBox_DataCollection.SelectedItems;
-
-            main_view = new CollectionViewSource() { Source = main_collection }.View;
-            collection_view = new CollectionViewSource() { Source = main_collection }.View;
-            collection_view.Filter = CollectionFilter;
-            grid_view = new CollectionViewSource() { Source = main_collection }.View;
-            grid_view.Filter = GridFilter;
-
-            this.DataContext = this;
+            UpdateBindings();
         }
-
         private void SaveMenuItemClicked(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.SaveFileDialog save_dialoge = new Microsoft.Win32.SaveFileDialog();
@@ -120,7 +131,6 @@ namespace Lab1_V2
             V2Data data = item as V2Data;
             return (data.GetType() == typeof(V2DataCollection));
         }
-
         private bool GridFilter(object item)
         {
             V2Data data = item as V2Data;
@@ -131,12 +141,10 @@ namespace Lab1_V2
         {
             main_collection.AddDefaults();
         }
-
         private void AddDefaultV2DataCollectionClicked(object sender, RoutedEventArgs e)
         {
             main_collection.AddDefaultV2DataCollection();
         }
-
         private void AddDefaultV2DataOnGridClicked(object sender, RoutedEventArgs e)
         {
             main_collection.AddDefaultV2DataOnGrid();
@@ -144,16 +152,7 @@ namespace Lab1_V2
 
         private void RemoveClicked(object sender, RoutedEventArgs e)
         {
-            List<int> list = (from object obj in ListBox_Main.SelectedItems
-                              select ListBox_Main.Items.IndexOf(obj)).ToList();
-
-            // second selected item has index of 0, as a first (???)
-            foreach (int index in list)
-            {
-                main_collection.Remove(index);
-            }
-
-            //main_collection.Remove(ListBox_Main.SelectedIndex);
+            main_collection.Remove(ListBox_Main.SelectedIndex);
         }
 
     }

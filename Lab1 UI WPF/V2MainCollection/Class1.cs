@@ -544,7 +544,6 @@ namespace MyLibrary
 
         public List<V2Data> V2data_list;
         public int GetCount { get { return V2data_list.Count; } }
-
         public double GetAverage
         {
             get
@@ -559,7 +558,6 @@ namespace MyLibrary
                 return 0;
             }
         }
-
         public DataItem GetNearAverage
         {
             get
@@ -589,10 +587,12 @@ namespace MyLibrary
                 return query.SelectMany(x => x);
             }
         }
+        public bool isModified = false;
 
         public V2MainCollection()
         {
             V2data_list = new List<V2Data>();
+            CollectionChanged += CollectionChangedHandler;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             OnPropertyChanged("GetCount");
             OnPropertyChanged("GetAverage");
@@ -612,7 +612,6 @@ namespace MyLibrary
                 stream.Close();
             }
         }
-
         public void Load(string filename)
         {
             Stream stream = null;
@@ -628,11 +627,14 @@ namespace MyLibrary
             }
         }
 
+        private void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            isModified = true;
+        }
         protected void OnPropertyChanged(string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
         private void OnCollectionChanged(NotifyCollectionChangedAction action, V2Data modified_item = null, int index = 0)
         {
             switch (action)
@@ -661,7 +663,6 @@ namespace MyLibrary
             OnPropertyChanged("GetCount");
             OnPropertyChanged("GetAverage");
         }
-
         public void Remove(int index)
         {
             V2Data removed_item = V2data_list[index];
@@ -670,7 +671,6 @@ namespace MyLibrary
             OnPropertyChanged("GetCount");
             OnPropertyChanged("GetAverage");
         }
-
         public void AddDefaults()
         {
             // random init 
@@ -694,14 +694,12 @@ namespace MyLibrary
             Add(data_grid_2);
             Add(data_collection_3);
         }
-
         public void AddDefaultV2DataCollection()
         {
             V2DataCollection data_collection = new V2DataCollection("data_collection", 2.0f);
             data_collection.InitRandom(2, 10.0f, 20.0f, -11.0f, -5.0f);
             Add(data_collection);
         }
-
         public void AddDefaultV2DataOnGrid()
         {
             V2DataOnGrid data_grid = new V2DataOnGrid("data_grid", 6.0f, new Grid1D(2, 2), new Grid1D(3, 2));
@@ -718,7 +716,6 @@ namespace MyLibrary
 
             return output;
         }
-
         public string ToLongString(string format = "G")
         {
             string output = "";
@@ -734,7 +731,6 @@ namespace MyLibrary
         {
             return V2data_list.GetEnumerator();
         }
-
         IEnumerator<V2Data> IEnumerable<V2Data>.GetEnumerator()
         {
             return V2data_list.GetEnumerator();
