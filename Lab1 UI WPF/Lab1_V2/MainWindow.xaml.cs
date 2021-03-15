@@ -23,36 +23,48 @@ using System.IO;
 
 namespace Lab1_V2
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    /// 
-
-    public class DataConverter : IValueConverter
+    public class CoordConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
 
-            var result = value as V2DataCollection;
-            //ObservableCollection<string> output = new ObservableCollection<string>();
-            //foreach (V2DataCollection data in result)
-            //{
-            //    foreach(DataItem item in data.EM_list)
-            //    {
-            //        output.Add(item.ToString());
-            //    }
-            //}
+            V2DataCollection result = value as V2DataCollection;
+            List<DataItem> list = result.EM_list;
 
-            return result;
+            if (list.Count != 0)
+                return list[0].grid_coord.ToString("F3");
+            else
+                return "no elements in list";
 
-            //V2DataCollection data = (V2DataCollection)value;
-            //string coords = data.grid_coord.X.ToString() + " " + data.grid_coord.Y.ToString();
-            //return data.EM_frequency;
+            //DataItem item = (DataItem)value;
+            //if (value != null)
+            //    return item.grid_coord.ToString("F3");
+            //else
+            //    return "null";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return DependencyProperty.UnsetValue;
+            return value;
+        }
+    }
+    public class ValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+
+            V2DataCollection result = value as V2DataCollection;
+            List<DataItem> list = result.EM_list;
+
+            if (list.Count != 0)
+                return list[0].EM_value.ToString("F3");
+            else
+                return "no elements in list";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value;
         }
     }
 
@@ -73,6 +85,11 @@ namespace Lab1_V2
 
         public void OnWindowClosing(object sender, CancelEventArgs e)
         {
+            AlertIfMofified();
+        }
+
+        private void AlertIfMofified()
+        {
             MessageBoxResult result;
             if (main_collection.isModified)
             {
@@ -86,7 +103,6 @@ namespace Lab1_V2
                         break;
                 }
             }
-
         }
 
         private void UpdateBindings()
@@ -106,15 +122,20 @@ namespace Lab1_V2
 
         private void NewMenuItemClicked(object sender, RoutedEventArgs e)
         {
+            if (main_collection != null)
+                AlertIfMofified();
             main_collection = new V2MainCollection();
             UpdateBindings();
         }
         private void OpenMenuItemClicked(object sender, RoutedEventArgs e)
         {
+            AlertIfMofified();
+
             Microsoft.Win32.OpenFileDialog open_dialoge = new Microsoft.Win32.OpenFileDialog();
             open_dialoge.ShowDialog();
             string filename = open_dialoge.FileName;
-            main_collection.Load(filename);
+            if (!string.IsNullOrEmpty(filename))
+                main_collection.Load(filename);
 
             UpdateBindings();
         }
@@ -123,7 +144,8 @@ namespace Lab1_V2
             Microsoft.Win32.SaveFileDialog save_dialoge = new Microsoft.Win32.SaveFileDialog();
             save_dialoge.ShowDialog();
             string filename = save_dialoge.FileName;
-            main_collection.Save(filename);
+            if (!string.IsNullOrEmpty(filename))
+                main_collection.Load(filename);
         }
 
         private bool CollectionFilter(object item)
@@ -149,11 +171,13 @@ namespace Lab1_V2
         {
             main_collection.AddDefaultV2DataOnGrid();
         }
+        private void AddElementFromFileClicked(object sender, RoutedEventArgs e)
+        {
 
+        }
         private void RemoveClicked(object sender, RoutedEventArgs e)
         {
             main_collection.Remove(ListBox_Main.SelectedIndex);
         }
-
     }
 }

@@ -26,7 +26,6 @@ namespace MyLibrary
             this.grid_coord = grid_coord;
             this.EM_value = EM_value;
         }
-
         public DataItem(SerializationInfo info, StreamingContext context)
         {
             float grid_coord_X = info.GetSingle("grid_coord_X");
@@ -53,7 +52,6 @@ namespace MyLibrary
             output += "value = " + EM_value.ToString() + ";";
             return output;
         }
-
         public string ToString(string format)
         {
             string output = "coordinates = " + grid_coord.ToString(format) + "; ";
@@ -62,7 +60,6 @@ namespace MyLibrary
             return output;
         }
     }
-
     // grid settings
     [Serializable]
     public struct Grid1D
@@ -76,12 +73,10 @@ namespace MyLibrary
             this.knot_count = knot_count;
         }
 
-
         public override string ToString()
         {
             return $"stride = {stride}; knot_count = {knot_count}\n";
         }
-
         public string ToString(string format)
         {
             string output = "stride = " + stride.ToString(format) + "; ";
@@ -122,12 +117,71 @@ namespace MyLibrary
             return output;
         }
     }
-
     [Serializable]
     public class V2DataOnGrid : V2Data, IEnumerable<DataItem>
     {
         public Grid1D[] grid_settings { get; set; }
         public Complex[,] EM_array { get; set; }
+        public override Complex[] NearAverage(float eps)
+        {
+            double mean_real = 0, sum_real = 0;
+            int x_knot_count = grid_settings[0].knot_count, y_knot_count = grid_settings[1].knot_count;
+            Complex[] output_array = new Complex[x_knot_count * y_knot_count];
+
+            for (int j = 0; j < y_knot_count; j++)
+            {
+                for (int i = 0; i < x_knot_count; i++)
+                {
+                    sum_real += EM_array[i, j].Real;
+                }
+            }
+
+            mean_real = sum_real / (x_knot_count * y_knot_count);
+
+            int k = 0;
+            for (int j = 0; j < y_knot_count; j++)
+            {
+                for (int i = 0; i < x_knot_count; i++)
+                {
+                    if (Math.Abs(EM_array[i, j].Real - mean_real) < eps)
+                    {
+                        output_array[k] = EM_array[i, j];
+                        k++;
+                    }
+                }
+            }
+
+            Array.Resize(ref output_array, k);
+
+            return output_array;
+        }
+        public override IEnumerable<DataItem> GetDataItem()
+        {
+            V2DataCollection temp = (V2DataCollection)this;
+            return temp.GetDataItem();
+        }
+        public override double GetAverage()
+        {
+            double average = 0, sum = 0;
+            for (int j = 0; j < grid_settings[1].knot_count; j++)
+            {
+                for (int i = 0; i < grid_settings[0].knot_count; i++)
+                {
+                    sum += EM_array[i, j].Magnitude;
+                }
+            }
+
+            if (grid_settings[0].knot_count * grid_settings[1].knot_count != 0)
+            {
+                average = sum / grid_settings[0].knot_count * grid_settings[1].knot_count;
+                return average;
+            }
+            else return 0;
+        }
+        public override IEnumerable<Vector2> GetCoords()
+        {
+            yield return new Vector2(0f, 0f);
+        }
 
         /*
          (data format in file named filename)
@@ -202,7 +256,6 @@ namespace MyLibrary
                 Console.WriteLine("  < The 'try catch' block is finished > \n");
             }
         }
-
         public V2DataOnGrid(string info, double EM_frequency, Grid1D OX_settings, Grid1D OY_settings) : base(info, EM_frequency)
         {
             EM_array = new Complex[OX_settings.knot_count, OY_settings.knot_count];
@@ -210,35 +263,10 @@ namespace MyLibrary
             grid_settings[0] = OX_settings;
             grid_settings[1] = OY_settings;
         }
-
         public V2DataOnGrid(): base("", 0)
         {
             grid_settings = null;
             EM_array = null;
-        }
-
-        public override double GetAverage()
-        {
-            double average = 0, sum = 0;
-            for (int j = 0; j < grid_settings[1].knot_count; j++)
-            {
-                for (int i = 0; i < grid_settings[0].knot_count; i++)
-                {
-                    sum += EM_array[i, j].Magnitude;
-                }
-            }
-
-            if (grid_settings[0].knot_count * grid_settings[1].knot_count != 0)
-            {
-                average = sum / grid_settings[0].knot_count * grid_settings[1].knot_count;
-                return average;
-            }
-            else return 0;
-        }
-
-        public override IEnumerable<Vector2> GetCoords()
-        {
-            yield return new Vector2(0f, 0f);
         }
 
         public void InitRandom(double minValue, double maxValue)
@@ -259,7 +287,6 @@ namespace MyLibrary
                 }
             }
         }
-
         public static explicit operator V2DataCollection(V2DataOnGrid data_on_grid)
         {
             V2DataCollection data_collection = new V2DataCollection(data_on_grid.info, data_on_grid.EM_frequency);
@@ -282,46 +309,6 @@ namespace MyLibrary
             return data_collection;
         }
 
-        public override IEnumerable<DataItem> GetDataItem()
-        {
-            V2DataCollection temp = (V2DataCollection)this;
-            return temp.GetDataItem();
-        }
-
-        public override Complex[] NearAverage(float eps)
-        {
-            double mean_real = 0, sum_real = 0;
-            int x_knot_count = grid_settings[0].knot_count, y_knot_count = grid_settings[1].knot_count;
-            Complex[] output_array = new Complex[x_knot_count * y_knot_count];
-
-            for (int j = 0; j < y_knot_count; j++)
-            {
-                for (int i = 0; i < x_knot_count; i++)
-                {
-                    sum_real += EM_array[i, j].Real;
-                }
-            }
-
-            mean_real = sum_real / (x_knot_count * y_knot_count);
-
-            int k = 0;
-            for (int j = 0; j < y_knot_count; j++)
-            {
-                for (int i = 0; i < x_knot_count; i++)
-                {
-                    if (Math.Abs(EM_array[i, j].Real - mean_real) < eps)
-                    {
-                        output_array[k] = EM_array[i, j];
-                        k++;
-                    }
-                }
-            }
-
-            Array.Resize(ref output_array, k);
-
-            return output_array;
-        }
-
         public override string ToString()
         {
             string output = $"  type = " + this.GetType() + "\n";
@@ -330,7 +317,6 @@ namespace MyLibrary
             output += "  " + base.ToString();
             return output;
         }
-
         public override string ToLongString()
         {
             string output = this.ToString();
@@ -345,7 +331,6 @@ namespace MyLibrary
 
             return output;
         }
-
         public override string ToLongString(string format)
         {
             string output = $"  type = " + this.GetType() + "\n";
@@ -383,7 +368,6 @@ namespace MyLibrary
                 coord.X = 0;
             }
         }
-
         IEnumerator<DataItem> IEnumerable<DataItem>.GetEnumerator()
         {
             Vector2 coord = new Vector2(0.0f, 0.0f);
@@ -403,35 +387,20 @@ namespace MyLibrary
         }
 
     }
-
     [Serializable]
     public class V2DataCollection : V2Data, IEnumerable<DataItem>
     {
-
-        public List<DataItem> EM_list { get; set; }
-
+        public List<DataItem> EM_list;
         public override IEnumerable<Vector2> GetCoords()
         {
             foreach (DataItem item in EM_list)
                 yield return item.grid_coord;
         }
-
         public override IEnumerable<DataItem> GetDataItem()
         {
             foreach (DataItem item in EM_list)
                 yield return item;
         }
-
-        public V2DataCollection() : base("", 0)
-        {
-            EM_list = null; 
-        }
-
-        public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
-        {
-            EM_list = new List<DataItem>();
-        }
-
         public override double GetAverage()
         {
             if (EM_list.Count != 0)
@@ -439,31 +408,6 @@ namespace MyLibrary
             else
                 return 0;
         }
-
-        public void InitRandom(int nItems, float xmax, float ymax, double minValue, double maxValue)
-        {
-            if (minValue > maxValue)
-            {
-                double tmp = maxValue;
-                maxValue = minValue;
-                minValue = tmp;
-            }
-
-            Random rnd = new Random();
-
-            Vector2 coord;
-            Complex num;
-            DataItem data;
-            for (int i = 0; i < nItems; i++)
-            {
-                coord = new Vector2((float)rnd.NextDouble() * xmax, (float)rnd.NextDouble() * ymax);
-                num = new Complex(minValue + (maxValue - minValue) * rnd.NextDouble(), minValue + (maxValue - minValue) * rnd.NextDouble());
-                data = new DataItem(coord, num);
-                EM_list.Add(data);
-            }
-
-        }
-
         public override Complex[] NearAverage(float eps)
         {
             double mean_real = 0, sum_real = 0;
@@ -492,6 +436,39 @@ namespace MyLibrary
             return output_array;
         }
 
+        public V2DataCollection() : base("", 0)
+        {
+            EM_list = null; 
+        }
+        public V2DataCollection(string info, double EM_frequency) : base(info, EM_frequency)
+        {
+            EM_list = new List<DataItem>();
+        }
+
+        public void InitRandom(int nItems, float xmax, float ymax, double minValue, double maxValue)
+        {
+            if (minValue > maxValue)
+            {
+                double tmp = maxValue;
+                maxValue = minValue;
+                minValue = tmp;
+            }
+
+            Random rnd = new Random();
+
+            Vector2 coord;
+            Complex num;
+            DataItem data;
+            for (int i = 0; i < nItems; i++)
+            {
+                coord = new Vector2((float)rnd.NextDouble() * xmax, (float)rnd.NextDouble() * ymax);
+                num = new Complex(minValue + (maxValue - minValue) * rnd.NextDouble(), minValue + (maxValue - minValue) * rnd.NextDouble());
+                data = new DataItem(coord, num);
+                EM_list.Add(data);
+            }
+
+        }
+
         public override string ToString()
         {
             string output = $"type = " + this.GetType() + "\n";
@@ -503,7 +480,6 @@ namespace MyLibrary
             output += base.ToString();
             return output;
         }
-
         public override string ToLongString()
         {
             string output = this.ToString();
@@ -513,7 +489,6 @@ namespace MyLibrary
 
             return output;
         }
-
         public override string ToLongString(string format)
         {
             string output = $"type = " + this.GetType() + "\n";
@@ -530,7 +505,6 @@ namespace MyLibrary
         {
             return EM_list.GetEnumerator();
         }
-
         IEnumerator<DataItem> IEnumerable<DataItem>.GetEnumerator()
         {
             return EM_list.GetEnumerator();
@@ -610,6 +584,7 @@ namespace MyLibrary
             finally
             {
                 stream.Close();
+                isModified = false;
             }
         }
         public void Load(string filename)
