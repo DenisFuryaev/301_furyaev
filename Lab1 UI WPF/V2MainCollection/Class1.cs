@@ -184,7 +184,39 @@ namespace MyLibrary
         }
         public Complex GetMax()
         {
-            return new Complex(1.0f, 1.0f);
+            double max_magnitude = double.MinValue;
+            Complex max_value = new Complex();
+            for(int j = 0; j < EM_array.GetLength(1); j++)
+            {
+                for (int i = 0; i < EM_array.GetLength(0); i++)
+                {
+                    if (EM_array[i, j].Magnitude > max_magnitude)
+                    {
+                        max_value = EM_array[i, j];
+                        max_magnitude = EM_array[i, j].Magnitude;
+                    }
+                        
+                }
+            }
+            return max_value;
+        }
+        public Complex GetMin()
+        {
+            double min_magnitude = double.MaxValue;
+            Complex min_value = new Complex();
+            for (int j = 0; j < EM_array.GetLength(1); j++)
+            {
+                for (int i = 0; i < EM_array.GetLength(0); i++)
+                {
+                    if (EM_array[i, j].Magnitude < min_magnitude)
+                    {
+                        min_value = EM_array[i, j];
+                        min_magnitude = EM_array[i, j].Magnitude;
+                    }
+
+                }
+            }
+            return min_value;
         }
 
         /*

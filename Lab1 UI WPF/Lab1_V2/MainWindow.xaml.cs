@@ -50,13 +50,28 @@ namespace Lab1_V2
             return value;
         }
     }
-    public class MinMaxConverter : IValueConverter
+    public class MaxConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            //if (value is V2DataOnGrid item)
-            //    return item.GetMax().ToString("F3");
-            //else
+            if (value is V2DataOnGrid item)
+                return item.GetMax().ToString("F2");
+            else
+                return "null";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value;
+        }
+    }
+    public class MinConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is V2DataOnGrid item)
+                return item.GetMin().ToString("F2");
+            else
                 return "null";
         }
 
