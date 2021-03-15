@@ -10,12 +10,13 @@
     <Window.Resources>
         <local:CoordConverter x:Key="CoordConverter" />
         <local:ValueConverter x:Key="ValueConverter" />
+        <local:MinMaxConverter x:Key="MinMaxConverter" />
         <DataTemplate x:Key="DataTemplate">
             <StackPanel Orientation="Vertical">
                 <TextBlock x:Name="TextBlock_details_coord" FontSize="16" HorizontalAlignment="Left"
-                               Text="{Binding Converter={StaticResource CoordConverter}}"/>
+                               Text="{Binding Path=grid_coord, Converter={StaticResource CoordConverter}}"/>
                 <TextBlock x:Name="TextBlock_details_value" FontSize="16" HorizontalAlignment="Left"
-                               Text="{Binding Converter={StaticResource ValueConverter}}"/>
+                               Text="{Binding Path=EM_value, Converter={StaticResource ValueConverter}}"/>
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
@@ -52,7 +53,9 @@
 
 
         <ListBox x:Name="listBox_details" Margin="10,10,10,10" Grid.Column="1" Grid.Row="1"      
-                IsSynchronizedWithCurrentItem="False" ItemTemplate="{StaticResource DataTemplate}"/>
+                IsSynchronizedWithCurrentItem="False"
+                ItemsSource="{Binding ElementName=ListBox_DataCollection, Path=SelectedItem}"
+                ItemTemplate="{StaticResource DataTemplate}"/>
 
         
 
@@ -67,6 +70,11 @@
         <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="3" Grid.Row="1" 
                 ItemsSource="{Binding grid_view}" DisplayMemberPath="info"
                 IsSynchronizedWithCurrentItem="False" />
+
+        <TextBlock x:Name="TextBox_MinMax_name" HorizontalAlignment="Left"
+                Grid.Column="3" Grid.Row="0" Text="Min and Max:" />
+        <TextBlock x:Name="TextBox_MinMax" HorizontalAlignment="Center" Grid.Column="3" Grid.Row="0" 
+                Text="{Binding ElementName=ListBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource MinMaxConverter}}" />
 
         <TextBlock x:Name="TextBox_count_name" HorizontalAlignment="Left"
                 Grid.Column="1" Grid.Row="0" Text="Items in collection:" />

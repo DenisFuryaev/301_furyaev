@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 
 namespace Lab1_V2
 {
@@ -27,20 +28,8 @@ namespace Lab1_V2
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-
-            V2DataCollection result = value as V2DataCollection;
-            List<DataItem> list = result.EM_list;
-
-            if (list.Count != 0)
-                return list[0].grid_coord.ToString("F3");
-            else
-                return "no elements in list";
-
-            //DataItem item = (DataItem)value;
-            //if (value != null)
-            //    return item.grid_coord.ToString("F3");
-            //else
-            //    return "null";
+            Vector2 coord = (Vector2)value;
+            return "coord = " + coord.ToString("F3");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -52,14 +41,23 @@ namespace Lab1_V2
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            Complex em_value = (Complex)value;
+            return "value = " + em_value.ToString("F3");
+        }
 
-            V2DataCollection result = value as V2DataCollection;
-            List<DataItem> list = result.EM_list;
-
-            if (list.Count != 0)
-                return list[0].EM_value.ToString("F3");
-            else
-                return "no elements in list";
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value;
+        }
+    }
+    public class MinMaxConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //if (value is V2DataOnGrid item)
+            //    return item.GetMax().ToString("F3");
+            //else
+                return "null";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -91,7 +89,7 @@ namespace Lab1_V2
         private void AlertIfMofified()
         {
             MessageBoxResult result;
-            if (main_collection.isModified)
+            if (main_collection != null && main_collection.isModified)
             {
                 result = MessageBox.Show("You have modified collection but didnt saved it.\n Do you wont to save it?", "Save or not?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
                 switch (result)
@@ -108,8 +106,6 @@ namespace Lab1_V2
         private void UpdateBindings()
         {
             this.DataContext = null;
-
-            listBox_details.ItemsSource = ListBox_DataCollection.SelectedItems;
 
             main_view = new CollectionViewSource() { Source = main_collection }.View;
             collection_view = new CollectionViewSource() { Source = main_collection }.View;

@@ -182,6 +182,10 @@ namespace MyLibrary
         {
             yield return new Vector2(0f, 0f);
         }
+        public Complex GetMax()
+        {
+            return new Complex(1.0f, 1.0f);
+        }
 
         /*
          (data format in file named filename)
@@ -517,7 +521,8 @@ namespace MyLibrary
         public event PropertyChangedEventHandler PropertyChanged;
 
         public List<V2Data> V2data_list;
-        public int GetCount { get { return V2data_list.Count; } }
+        public int GetCount 
+        { get { return V2data_list.Count; } }
         public double GetAverage
         {
             get
