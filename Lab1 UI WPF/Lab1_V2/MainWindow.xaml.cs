@@ -80,7 +80,22 @@ namespace Lab1_V2
             return value;
         }
     }
+    public class IsModifiedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool item = (bool)value;
+            if (item)
+                return "NOT saved";
+            else
+                return "saved";
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value;
+        }
+    }
     public partial class MainWindow : Window
     {
 
@@ -104,7 +119,7 @@ namespace Lab1_V2
         private void AlertIfMofified()
         {
             MessageBoxResult result;
-            if (main_collection != null && main_collection.isModified)
+            if (main_collection != null && main_collection.IsModified)
             {
                 result = MessageBox.Show("You have modified collection but didnt saved it.\n Do you wont to save it?", "Save or not?", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
                 switch (result)
@@ -156,7 +171,7 @@ namespace Lab1_V2
             save_dialoge.ShowDialog();
             string filename = save_dialoge.FileName;
             if (!string.IsNullOrEmpty(filename))
-                main_collection.Load(filename);
+                main_collection.Save(filename);
         }
 
         private bool CollectionFilter(object item)

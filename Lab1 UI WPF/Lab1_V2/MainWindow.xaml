@@ -12,6 +12,7 @@
         <local:ValueConverter x:Key="ValueConverter" />
         <local:MinConverter x:Key="MinConverter" />
         <local:MaxConverter x:Key="MaxConverter" />
+        <local:IsModifiedConverter x:Key="IsModifiedConverter" />
         <DataTemplate x:Key="DataTemplate">
             <StackPanel Orientation="Vertical">
                 <TextBlock x:Name="TextBlock_details_coord" FontSize="16" HorizontalAlignment="Left"
@@ -58,8 +59,6 @@
                 ItemsSource="{Binding ElementName=ListBox_DataCollection, Path=SelectedItem}"
                 ItemTemplate="{StaticResource DataTemplate}"/>
 
-        
-
         <ListBox x:Name="ListBox_Main" Margin="10,10,10,10" Grid.Column="0" Grid.Row="1" 
                 ItemsSource="{Binding main_view}" DisplayMemberPath="info" SelectedItem="selected_item"
                 IsSynchronizedWithCurrentItem="False"/>
@@ -83,15 +82,13 @@
                 Text="{Binding ElementName=ListBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource MinConverter}}" />
 
 
-        <TextBlock x:Name="TextBox_count_name" HorizontalAlignment="Left"
-                Grid.Column="1" Grid.Row="0" Text="Items in collection:" />
-        <TextBlock x:Name="TextBox_count" HorizontalAlignment="Center"
-                Grid.Column="1" Grid.Row="0" Text="{Binding main_collection.GetCount}" />
+        <TextBlock x:Name="TextBox_IsSaved" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0"
+                Text="{Binding main_collection.IsModified, Converter={StaticResource IsModifiedConverter}}" />
+
 
         <TextBlock x:Name="TextBox_average_name" HorizontalAlignment="Left"
                 Grid.Column="2" Grid.Row="0" Text="Average value:" />
         <TextBlock x:Name="TextBox_average" HorizontalAlignment="Center"
                 Grid.Column="2" Grid.Row="0" Text="{Binding main_collection.GetAverage, StringFormat=N4}" />
     </Grid>
-
 </Window>

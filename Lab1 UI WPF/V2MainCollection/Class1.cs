@@ -598,15 +598,13 @@ namespace MyLibrary
                 return query.SelectMany(x => x);
             }
         }
-        public bool isModified = false;
+        public bool IsModified { get; set; } = false;
 
         public V2MainCollection()
         {
             V2data_list = new List<V2Data>();
             CollectionChanged += CollectionChangedHandler;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            OnPropertyChanged("GetCount");
-            OnPropertyChanged("GetAverage");
         }
 
         public void Save(string filename)
@@ -621,7 +619,8 @@ namespace MyLibrary
             finally
             {
                 stream.Close();
-                isModified = false;
+                IsModified = false;
+                OnPropertyChanged("IsModified");
             }
         }
         public void Load(string filename)
@@ -636,12 +635,17 @@ namespace MyLibrary
             finally
             {
                 stream.Close();
+                IsModified = false;
+                OnPropertyChanged("IsModified");
             }
         }
 
         private void CollectionChangedHandler(object sender, NotifyCollectionChangedEventArgs e)
         {
-            isModified = true;
+            IsModified = true;
+            OnPropertyChanged("GetCount");
+            OnPropertyChanged("GetAverage");
+            OnPropertyChanged("IsModified");
         }
         protected void OnPropertyChanged(string name = null)
         {
@@ -672,16 +676,12 @@ namespace MyLibrary
         {
             V2data_list.Add(item);
             OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
-            OnPropertyChanged("GetCount");
-            OnPropertyChanged("GetAverage");
         }
         public void Remove(int index)
         {
             V2Data removed_item = V2data_list[index];
             V2data_list.Remove(V2data_list[index]);
             OnCollectionChanged(NotifyCollectionChangedAction.Remove, removed_item, index);
-            OnPropertyChanged("GetCount");
-            OnPropertyChanged("GetAverage");
         }
         public void AddDefaults()
         {
