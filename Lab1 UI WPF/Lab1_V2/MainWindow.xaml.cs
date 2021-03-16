@@ -199,11 +199,25 @@ namespace Lab1_V2
         }
         private void AddElementFromFileClicked(object sender, RoutedEventArgs e)
         {
+            Microsoft.Win32.OpenFileDialog open_dialoge = new Microsoft.Win32.OpenFileDialog();
+            open_dialoge.ShowDialog();
+            string filename = open_dialoge.FileName;
+            if (!string.IsNullOrEmpty(filename))
+                main_collection.AddV2DataOnGridFromFile(filename);
 
+            UpdateBindings();
         }
         private void RemoveClicked(object sender, RoutedEventArgs e)
         {
             main_collection.Remove(ListBox_Main.SelectedIndex);
         }
+        //private void SaveElementToFileClicked(object sender, RoutedEventArgs e)
+        //{
+        //    Microsoft.Win32.SaveFileDialog save_dialoge = new Microsoft.Win32.SaveFileDialog();
+        //    save_dialoge.ShowDialog();
+        //    string filename = save_dialoge.FileName;
+        //    if (!string.IsNullOrEmpty(filename))
+        //        main_collection.SaveV2DataOnGridToFile(filename);
+        //}
     }
 }

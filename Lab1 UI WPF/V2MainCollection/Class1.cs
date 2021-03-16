@@ -718,6 +718,39 @@ namespace MyLibrary
             data_grid.InitRandom(-10.0, 15.0);
             Add(data_grid);
         }
+        public void AddV2DataOnGridFromFile(string filename)
+        {
+            Stream stream = null;
+            V2DataOnGrid Data;
+            try
+            {
+                stream = File.Open(filename, FileMode.Open);
+                BinaryFormatter formatter = new BinaryFormatter();
+                Data = (V2DataOnGrid)formatter.Deserialize(stream);
+                V2data_list.Add(Data);
+            }
+            finally
+            {
+                stream.Close();
+                IsModified = true;
+                OnPropertyChanged("IsModified");
+            }
+        }
+        //public void SaveV2DataOnGridToFile(string filename)
+        //{
+        //    Stream stream = null;
+        //    V2DataOnGrid Data;
+        //    try
+        //    {
+        //        stream = File.Open(filename, FileMode.Create);
+        //        BinaryFormatter formatter = new BinaryFormatter();
+        //        formatter.Serialize(stream, (V2DataOnGrid)V2data_list[0]);
+        //    }
+        //    finally
+        //    {
+        //        stream.Close();
+        //    }
+        //}
 
         public override string ToString()
         {
