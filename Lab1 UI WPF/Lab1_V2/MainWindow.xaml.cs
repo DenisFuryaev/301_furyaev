@@ -109,6 +109,8 @@ namespace Lab1_V2
         {
             InitializeComponent();
             Closing += OnWindowClosing;
+            main_collection = new V2MainCollection();
+            UpdateBindings();
         }
 
         public void OnWindowClosing(object sender, CancelEventArgs e)
@@ -132,7 +134,6 @@ namespace Lab1_V2
                 }
             }
         }
-
         private void UpdateBindings()
         {
             this.DataContext = null;

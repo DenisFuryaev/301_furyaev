@@ -244,7 +244,8 @@ namespace MyLibrary
 
         public V2DataOnGrid(string filename) : base("", 0)
         {
-            string path = "../../../" + filename;
+            //string path = "../../../" + filename;
+            string path = filename;
             double EM_frequency;
             Grid1D OX_settings, OY_settings;
 
@@ -720,21 +721,10 @@ namespace MyLibrary
         }
         public void AddV2DataOnGridFromFile(string filename)
         {
-            Stream stream = null;
-            V2DataOnGrid Data;
-            try
-            {
-                stream = File.Open(filename, FileMode.Open);
-                BinaryFormatter formatter = new BinaryFormatter();
-                Data = (V2DataOnGrid)formatter.Deserialize(stream);
-                V2data_list.Add(Data);
-            }
-            finally
-            {
-                stream.Close();
-                IsModified = true;
-                OnPropertyChanged("IsModified");
-            }
+            V2DataOnGrid data = new V2DataOnGrid(filename);
+            V2data_list.Add(data);
+            IsModified = true;
+            OnPropertyChanged("IsModified");
         }
         //public void SaveV2DataOnGridToFile(string filename)
         //{
