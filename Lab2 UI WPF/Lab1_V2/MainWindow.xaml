@@ -22,6 +22,12 @@
             </StackPanel>
         </DataTemplate>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommandHandler"/>
+        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveCommandHandler"/>
+        <CommandBinding Command="ApplicationCommands.New" Executed="NewCommandHandler"/>
+        <CommandBinding Command="ApplicationCommands.Delete" Executed="RemoveCommandHandler" CanExecute="RemoveCommandHandler_CanExecute"/>
+    </Window.CommandBindings>
 
     <Grid>
         
@@ -40,10 +46,10 @@
 
         <Menu Grid.Row="0" Grid.ColumnSpan="4" FontSize="16">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Click="NewMenuItemClicked" />
+                <MenuItem Header="_New" Command="ApplicationCommands.New"/>
                 <Separator />
-                <MenuItem Header="_Open" Click="OpenMenuItemClicked" />
-                <MenuItem Header="_Save" Click="SaveMenuItemClicked" />
+                <MenuItem Header="_Open" Command="ApplicationCommands.Open"/>
+                <MenuItem Header="_Save" Command="ApplicationCommands.Save"/>
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Add Defaults" Click="AddDefaultsClicked" />
@@ -51,15 +57,14 @@
                 <MenuItem Header="_Add Default V2DataOnGrid" Click="AddDefaultV2DataOnGridClicked" />
                 <MenuItem Header="_Add Element from File" Click="AddElementFromFileClicked"/>
                 <MenuItem Header="_Add DataItem " Click="AddDataItemClicked"/>
-                <!--<MenuItem Header="_Save Element to File" Click="SaveElementToFileClicked"/>-->
                 <Separator />
-                <MenuItem Header="_Remove" Click="RemoveClicked" />
+                <MenuItem Header="_Remove" Command="ApplicationCommands.Delete"/>
             </MenuItem>
         </Menu>
 
         <StackPanel Grid.Column="0" Grid.Row="0" Margin="90,0,0,0" Orientation="Horizontal">
-            <Button Content="Open" Margin="0,0,10,0" Width="60" Background="White"/>
-            <Button Content="Save" Margin="0,0,10,0" Width="50" Background="White"/>
+            <Button Content="Open" Margin="0,0,10,0" Width="60" Background="White" Command="ApplicationCommands.Open"/>
+            <Button Content="Save" Margin="0,0,10,0" Width="50" Background="White" Command="ApplicationCommands.Save"/>
             <Button Content="Remove" Width="70" Background="White"/>
         </StackPanel>
 

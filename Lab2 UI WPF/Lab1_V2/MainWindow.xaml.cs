@@ -127,7 +127,7 @@ namespace Lab1_V2
                 switch (result)
                 {
                     case MessageBoxResult.Yes:
-                        SaveMenuItemClicked(null, null);
+                        SaveCommandHandler(null, null);
                         break;
                     case MessageBoxResult.No:
                         break;
@@ -147,14 +147,19 @@ namespace Lab1_V2
             this.DataContext = this;
         }
 
-        private void NewMenuItemClicked(object sender, RoutedEventArgs e)
+        private bool CollectionFilter(object item)
         {
-            if (main_collection != null)
-                AlertIfMofified();
-            main_collection = new V2MainCollection();
-            UpdateBindings();
+            V2Data data = item as V2Data;
+            return (data.GetType() == typeof(V2DataCollection));
         }
-        private void OpenMenuItemClicked(object sender, RoutedEventArgs e)
+        private bool GridFilter(object item)
+        {
+            V2Data data = item as V2Data;
+            return (data.GetType() == typeof(V2DataOnGrid));
+        }
+
+
+        private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             AlertIfMofified();
 
@@ -166,7 +171,7 @@ namespace Lab1_V2
 
             UpdateBindings();
         }
-        private void SaveMenuItemClicked(object sender, RoutedEventArgs e)
+        private void SaveCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             Microsoft.Win32.SaveFileDialog save_dialoge = new Microsoft.Win32.SaveFileDialog();
             save_dialoge.ShowDialog();
@@ -174,16 +179,23 @@ namespace Lab1_V2
             if (!string.IsNullOrEmpty(filename))
                 main_collection.Save(filename);
         }
-
-        private bool CollectionFilter(object item)
+        private void NewCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
-            V2Data data = item as V2Data;
-            return (data.GetType() == typeof(V2DataCollection));
+            if (main_collection != null)
+                AlertIfMofified();
+            main_collection = new V2MainCollection();
+            UpdateBindings();
         }
-        private bool GridFilter(object item)
+        private void RemoveCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
-            V2Data data = item as V2Data;
-            return (data.GetType() == typeof(V2DataOnGrid));
+            main_collection.Remove(ListBox_Main.SelectedIndex);
+        }
+        private void RemoveCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (ListBox_Main.SelectedIndex == -1)
+                e.CanExecute = false;
+            else
+                e.CanExecute = true;
         }
 
         private void AddDefaultsClicked(object sender, RoutedEventArgs e)
@@ -208,10 +220,7 @@ namespace Lab1_V2
 
             UpdateBindings();
         }
-        private void RemoveClicked(object sender, RoutedEventArgs e)
-        {
-            main_collection.Remove(ListBox_Main.SelectedIndex);
-        }
+
 
         private void AddDataItemClicked(object sender, RoutedEventArgs e)
         {
