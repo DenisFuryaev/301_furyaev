@@ -50,11 +50,18 @@
                 <MenuItem Header="_Add Default V2DataCollection" Click="AddDefaultV2DataCollectionClicked" />
                 <MenuItem Header="_Add Default V2DataOnGrid" Click="AddDefaultV2DataOnGridClicked" />
                 <MenuItem Header="_Add Element from File" Click="AddElementFromFileClicked"/>
+                <MenuItem Header="_Add DataItem " Click="AddDataItemClicked"/>
                 <!--<MenuItem Header="_Save Element to File" Click="SaveElementToFileClicked"/>-->
                 <Separator />
                 <MenuItem Header="_Remove" Click="RemoveClicked" />
             </MenuItem>
         </Menu>
+
+        <StackPanel Grid.Column="0" Grid.Row="0" Margin="90,0,0,0" Orientation="Horizontal">
+            <Button Content="Open" Margin="0,0,10,0" Width="60" Background="White"/>
+            <Button Content="Save" Margin="0,0,10,0" Width="50" Background="White"/>
+            <Button Content="Remove" Width="70" Background="White"/>
+        </StackPanel>
 
         <TextBlock Text="Main Collection" VerticalAlignment="Bottom" Foreground="Blue" FontWeight="Bold"
                    HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
@@ -62,8 +69,8 @@
                    HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
         <TextBlock Text="Data Collection" VerticalAlignment="Bottom" Foreground="Green" FontWeight="Bold"
                    HorizontalAlignment="Center" Grid.Column="2" Grid.Row="1"/>
-        <TextBlock Text="Data Collection list items" VerticalAlignment="Bottom" Foreground="LightSeaGreen" FontWeight="Bold"
-                   HorizontalAlignment="Center" Grid.Column="3" Grid.Row="1"/>
+        <TextBlock Text="Data Collection DataItems" VerticalAlignment="Bottom" Foreground="LightSeaGreen" 
+                   FontWeight="Bold" HorizontalAlignment="Center" Grid.Column="3" Grid.Row="1"/>
 
         <ListBox x:Name="listBox_details" Margin="10,10,10,10" Grid.Column="3" Grid.Row="2"  
                 IsSynchronizedWithCurrentItem="False"
@@ -87,7 +94,7 @@
                 Grid.Column="3" Grid.Row="0" Text="Min: " />
         <TextBlock x:Name="TextBox_Min" HorizontalAlignment="Left" Margin="180,0,0,0" Grid.Column="3" Grid.Row="0" 
                 Text="{Binding ElementName=ListBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource MinConverter}}" />
-        <TextBlock x:Name="TextBox_IsSaved" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"
+        <TextBlock x:Name="TextBox_IsSaved" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="0" Margin="20,0,0,0"
                 Text="{Binding main_collection.IsModified, Converter={StaticResource IsModifiedConverter}}" />
         <TextBlock x:Name="TextBox_average_name" HorizontalAlignment="Center" Margin="0,0,120,0"
                 Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Text="Average value:" />
@@ -107,6 +114,10 @@
             <TextBlock HorizontalAlignment="Left" Text="Real value:" Margin="10,10,10,10"/>
             <TextBox x:Name="Real_value" Margin="10,0,10,10"/>
         </StackPanel>
+
+        <Button x:Name="AddDataItemButton" Content="Add DataItem" Width="130" Height="30" 
+                VerticalAlignment="Bottom" Margin="10" Foreground="Black" Background="#D2EFEE"
+                Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" />
 
     </Grid>
 </Window>

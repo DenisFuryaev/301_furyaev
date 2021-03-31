@@ -212,5 +212,10 @@ namespace Lab1_V2
         {
             main_collection.Remove(ListBox_Main.SelectedIndex);
         }
+
+        private void AddDataItemClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
