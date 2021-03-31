@@ -1,0 +1,112 @@
+﻿<Window x:Class="Lab1_V2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Lab1_V2"
+        mc:Ignorable="d"
+        Title="V2DataCollection" Height="600" Width="1200" FontSize="16">
+
+    <Window.Resources>
+        <local:CoordConverter x:Key="CoordConverter" />
+        <local:ValueConverter x:Key="ValueConverter" />
+        <local:MinConverter x:Key="MinConverter" />
+        <local:MaxConverter x:Key="MaxConverter" />
+        <local:IsModifiedConverter x:Key="IsModifiedConverter" />
+        <DataTemplate x:Key="DataTemplate">
+            <StackPanel Orientation="Vertical">
+                <TextBlock x:Name="TextBlock_details_coord" FontSize="16" HorizontalAlignment="Left"
+                               Text="{Binding Path=grid_coord, Converter={StaticResource CoordConverter}}"/>
+                <TextBlock x:Name="TextBlock_details_value" FontSize="16" HorizontalAlignment="Left"
+                               Text="{Binding Path=EM_value, Converter={StaticResource ValueConverter}}"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <Menu Grid.Row="0" Grid.ColumnSpan="4" FontSize="16">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Click="NewMenuItemClicked" />
+                <Separator />
+                <MenuItem Header="_Open" Click="OpenMenuItemClicked" />
+                <MenuItem Header="_Save" Click="SaveMenuItemClicked" />
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Add Defaults" Click="AddDefaultsClicked" />
+                <MenuItem Header="_Add Default V2DataCollection" Click="AddDefaultV2DataCollectionClicked" />
+                <MenuItem Header="_Add Default V2DataOnGrid" Click="AddDefaultV2DataOnGridClicked" />
+                <MenuItem Header="_Add Element from File" Click="AddElementFromFileClicked"/>
+                <!--<MenuItem Header="_Save Element to File" Click="SaveElementToFileClicked"/>-->
+                <Separator />
+                <MenuItem Header="_Remove" Click="RemoveClicked" />
+            </MenuItem>
+        </Menu>
+
+        <TextBlock Text="Main Collection" VerticalAlignment="Bottom" Foreground="Blue" FontWeight="Bold"
+                   HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+        <TextBlock Text="V2Data On Grid" VerticalAlignment="Bottom"  Foreground="Green" FontWeight="Bold"
+                   HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
+        <TextBlock Text="Data Collection" VerticalAlignment="Bottom" Foreground="Green" FontWeight="Bold"
+                   HorizontalAlignment="Center" Grid.Column="2" Grid.Row="1"/>
+        <TextBlock Text="Data Collection list items" VerticalAlignment="Bottom" Foreground="LightSeaGreen" FontWeight="Bold"
+                   HorizontalAlignment="Center" Grid.Column="3" Grid.Row="1"/>
+
+        <ListBox x:Name="listBox_details" Margin="10,10,10,10" Grid.Column="3" Grid.Row="2"  
+                IsSynchronizedWithCurrentItem="False"
+                ItemsSource="{Binding ElementName=ListBox_DataCollection, Path=SelectedItem}"
+                ItemTemplate="{StaticResource DataTemplate}"/>
+        <ListBox x:Name="ListBox_Main" Margin="10,10,10,10" Grid.Column="0" Grid.Row="2"  Grid.RowSpan="2" 
+                ItemsSource="{Binding main_view}" DisplayMemberPath="info" SelectedItem="selected_item"
+                IsSynchronizedWithCurrentItem="False"/>
+        <ListBox x:Name="ListBox_DataCollection" Margin="10,10,10,10" Grid.Column="2" Grid.Row="2"
+                ItemsSource="{Binding collection_view}" DisplayMemberPath="info"
+                IsSynchronizedWithCurrentItem="False" />
+        <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="1" Grid.Row="2" Grid.RowSpan="2"    
+                ItemsSource="{Binding grid_view}" DisplayMemberPath="info"
+                IsSynchronizedWithCurrentItem="False" />
+
+        <TextBlock x:Name="TextBox_Max_name" HorizontalAlignment="Left"
+                Grid.Column="3" Grid.Row="0" Text="Max: " />
+        <TextBlock x:Name="TextBox_Max" HorizontalAlignment="Left" Margin="40,0,0,0" Grid.Column="3" Grid.Row="0" 
+                Text="{Binding ElementName=ListBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource MaxConverter}}" />
+        <TextBlock x:Name="TextBox_Min_name" HorizontalAlignment="Left" Margin="140,0,0,0"
+                Grid.Column="3" Grid.Row="0" Text="Min: " />
+        <TextBlock x:Name="TextBox_Min" HorizontalAlignment="Left" Margin="180,0,0,0" Grid.Column="3" Grid.Row="0" 
+                Text="{Binding ElementName=ListBox_DataOnGrid, Path=SelectedItem, Converter={StaticResource MinConverter}}" />
+        <TextBlock x:Name="TextBox_IsSaved" HorizontalAlignment="Right" Grid.Column="0" Grid.Row="0"
+                Text="{Binding main_collection.IsModified, Converter={StaticResource IsModifiedConverter}}" />
+        <TextBlock x:Name="TextBox_average_name" HorizontalAlignment="Center" Margin="0,0,120,0"
+                Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Text="Average value:" />
+        <TextBlock x:Name="TextBox_average" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="0"
+                Grid.ColumnSpan="2" Margin="0,0,-90,0" Text="{Binding main_collection.GetAverage, StringFormat=N4}" />
+
+
+        <StackPanel  Grid.Column="2" Grid.Row="3" Margin="10,10,10,10">
+            <TextBlock HorizontalAlignment="Left" Text="Coordinate X:" Margin="10,10,10,10"/>
+            <TextBox x:Name="Coordinate_X" Margin="10,0,10,10"/>
+            <TextBlock HorizontalAlignment="Left" Text="Coordinate Y:" Margin="10,10,10,10"/>
+            <TextBox x:Name="Coordinate_Y" Margin="10,0,10,10"/>
+        </StackPanel>
+        <StackPanel  Grid.Column="3" Grid.Row="3" Margin="10,10,10,10">
+            <TextBlock HorizontalAlignment="Left" Text="Imaginary value:" Margin="10,10,10,10"/>
+            <TextBox x:Name="Imaginary_value" Margin="10,0,10,10"/>
+            <TextBlock HorizontalAlignment="Left" Text="Real value:" Margin="10,10,10,10"/>
+            <TextBox x:Name="Real_value" Margin="10,0,10,10"/>
+        </StackPanel>
+
+    </Grid>
+</Window>
