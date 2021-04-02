@@ -505,6 +505,10 @@ namespace MyLibrary
             }
 
         }
+        public void Add(DataItem dataItem)
+        {
+            EM_list.Add(dataItem);
+        }
 
         public override string ToString()
         {

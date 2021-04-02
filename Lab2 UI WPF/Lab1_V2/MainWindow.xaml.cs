@@ -96,9 +96,9 @@ namespace Lab1_V2
             return value;
         }
     }
+
     public partial class MainWindow : Window
     {
-
         public V2MainCollection main_collection { get; set; }
         public ICollectionView main_view { get; set; }
         public ICollectionView collection_view { get; set; }
@@ -162,7 +162,6 @@ namespace Lab1_V2
         private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             AlertIfMofified();
-
             Microsoft.Win32.OpenFileDialog open_dialoge = new Microsoft.Win32.OpenFileDialog();
             open_dialoge.ShowDialog();
             string filename = open_dialoge.FileName;
@@ -179,6 +178,13 @@ namespace Lab1_V2
             if (!string.IsNullOrEmpty(filename))
                 main_collection.Save(filename);
         }
+        private void SaveCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if ((main_collection == null) || (!main_collection.IsModified))
+                e.CanExecute = false;
+            else
+                e.CanExecute = true;
+        }
         private void NewCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             if (main_collection != null)
@@ -192,7 +198,7 @@ namespace Lab1_V2
         }
         private void RemoveCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (ListBox_Main.SelectedIndex == -1)
+            if ((ListBox_Main == null) || (ListBox_Main.SelectedIndex == -1))
                 e.CanExecute = false;
             else
                 e.CanExecute = true;
@@ -226,5 +232,33 @@ namespace Lab1_V2
         {
 
         }
+
+        private void AddDataItemCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+
+        }
+
+        private void AddDataItemCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+
+        }
+    }
+
+    public static class CustomCommands
+    {
+        //public static RoutedCommand AddDataItem = new RoutedCommand("Add DataItem", typeof(Lab1_V2.MainWindow));
+
+        public static readonly RoutedUICommand AddDataItem = new RoutedUICommand
+            (
+                "Add DataItem",
+                "Add DataItem",
+                typeof(Lab1_V2.MainWindow),
+                new InputGestureCollection()
+                {
+                    new KeyGesture(Key.A, ModifierKeys.Control)
+                }
+            );
+
+
     }
 }

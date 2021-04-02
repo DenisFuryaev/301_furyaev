@@ -23,10 +23,14 @@
         </DataTemplate>
     </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommandHandler"/>
-        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveCommandHandler"/>
         <CommandBinding Command="ApplicationCommands.New" Executed="NewCommandHandler"/>
-        <CommandBinding Command="ApplicationCommands.Delete" Executed="RemoveCommandHandler" CanExecute="RemoveCommandHandler_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommandHandler"/>
+        <CommandBinding Command="ApplicationCommands.Save" Executed="SaveCommandHandler"
+                        CanExecute="SaveCommandHandler_CanExecute"/>
+        <CommandBinding Command="ApplicationCommands.Delete" Executed="RemoveCommandHandler"
+                        CanExecute="RemoveCommandHandler_CanExecute"/>
+        <CommandBinding Command="local:CustomCommands.AddDataItem"
+                        Executed="AddDataItemCommandHandler" CanExecute="AddDataItemCommandHandler_CanExecute" />
     </Window.CommandBindings>
 
     <Grid>
@@ -56,7 +60,7 @@
                 <MenuItem Header="_Add Default V2DataCollection" Click="AddDefaultV2DataCollectionClicked" />
                 <MenuItem Header="_Add Default V2DataOnGrid" Click="AddDefaultV2DataOnGridClicked" />
                 <MenuItem Header="_Add Element from File" Click="AddElementFromFileClicked"/>
-                <MenuItem Header="_Add DataItem " Click="AddDataItemClicked"/>
+                <MenuItem Header="_Add DataItem" Command="local:CustomCommands.AddDataItem"/>
                 <Separator />
                 <MenuItem Header="_Remove" Command="ApplicationCommands.Delete"/>
             </MenuItem>
@@ -65,7 +69,7 @@
         <StackPanel Grid.Column="0" Grid.Row="0" Margin="90,0,0,0" Orientation="Horizontal">
             <Button Content="Open" Margin="0,0,10,0" Width="60" Background="White" Command="ApplicationCommands.Open"/>
             <Button Content="Save" Margin="0,0,10,0" Width="50" Background="White" Command="ApplicationCommands.Save"/>
-            <Button Content="Remove" Width="70" Background="White"/>
+            <Button Content="Remove" Width="70" Background="White" Command="ApplicationCommands.Delete"/>
         </StackPanel>
 
         <TextBlock Text="Main Collection" VerticalAlignment="Bottom" Foreground="Blue" FontWeight="Bold"
@@ -122,7 +126,7 @@
 
         <Button x:Name="AddDataItemButton" Content="Add DataItem" Width="130" Height="30" 
                 VerticalAlignment="Bottom" Margin="10" Foreground="Black" Background="#D2EFEE"
-                Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" />
+                Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" Command="local:CustomCommands.AddDataItem"/>
 
     </Grid>
 </Window>
