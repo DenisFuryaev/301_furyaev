@@ -21,6 +21,7 @@ using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.IO;
 using System.Numerics;
+using Lab2_V2_UI;
 
 namespace Lab1_V2
 {
@@ -104,12 +105,14 @@ namespace Lab1_V2
         public ICollectionView collection_view { get; set; }
         public ICollectionView grid_view { get; set; }
         public V2DataCollection selected_items { get; set; }
+        public DataItemClass dataitem { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             Closing += OnWindowClosing;
             main_collection = new V2MainCollection();
+            dataitem = new DataItemClass();
             UpdateBindings();
         }
 
@@ -158,7 +161,6 @@ namespace Lab1_V2
             return (data.GetType() == typeof(V2DataOnGrid));
         }
 
-
         private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             AlertIfMofified();
@@ -203,6 +205,18 @@ namespace Lab1_V2
             else
                 e.CanExecute = true;
         }
+        private void AddDataItemCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            V2DataCollection data = (V2DataCollection)ListBox_DataCollection.SelectedItem;
+            data.Add(new DataItem(dataitem.grid_coord, new Complex(dataitem.EM_value_real, dataitem.EM_value_imaginary)));
+        }
+        private void AddDataItemCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if (ListBox_DataCollection.SelectedIndex == -1)
+                e.CanExecute = false;
+            else
+                e.CanExecute = true;
+        }
 
         private void AddDefaultsClicked(object sender, RoutedEventArgs e)
         {
@@ -226,28 +240,10 @@ namespace Lab1_V2
 
             UpdateBindings();
         }
-
-
-        private void AddDataItemClicked(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void AddDataItemCommandHandler(object sender, ExecutedRoutedEventArgs e)
-        {
-
-        }
-
-        private void AddDataItemCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-        {
-
-        }
     }
 
     public static class CustomCommands
     {
-        //public static RoutedCommand AddDataItem = new RoutedCommand("Add DataItem", typeof(Lab1_V2.MainWindow));
-
         public static readonly RoutedUICommand AddDataItem = new RoutedUICommand
             (
                 "Add DataItem",
@@ -258,7 +254,6 @@ namespace Lab1_V2
                     new KeyGesture(Key.A, ModifierKeys.Control)
                 }
             );
-
 
     }
 }

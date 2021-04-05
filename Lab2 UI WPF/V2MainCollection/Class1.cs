@@ -425,9 +425,10 @@ namespace MyLibrary
 
     }
     [Serializable]
-    public class V2DataCollection : V2Data, IEnumerable<DataItem>
+    public class V2DataCollection : V2Data, IEnumerable<DataItem>, INotifyCollectionChanged
     {
         public List<DataItem> EM_list;
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
         public override IEnumerable<Vector2> GetCoords()
         {
             foreach (DataItem item in EM_list)
@@ -508,6 +509,7 @@ namespace MyLibrary
         public void Add(DataItem dataItem)
         {
             EM_list.Add(dataItem);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, dataItem));
         }
 
         public override string ToString()
