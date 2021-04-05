@@ -63,8 +63,6 @@ namespace Lab2_V2_UI
             }
         }
 
-        //MessageBox.Show("value has changed");
-
         public V2DataCollection data_colletcion;
         public string Error { get { return "Error Text"; } }
         public string this[string property]
@@ -75,13 +73,13 @@ namespace Lab2_V2_UI
 
                 switch (property)
                 {
-                    case "grid_coord":
-                        if (grid_coord.X > 5.0)
-                            msg = "error from validation";
+                    case "EM_value_real":
+                        if ((EM_value.X == 0) && (EM_value.Y == 0))
+                            msg = "EM value magnitude can't be equal to 0";
                         break;
-                    case "EM_value":
-                        if (EM_value.X > 5.0)
-                            msg = "error from validation";
+                    case "EM_value_imaginary":
+                        if ((EM_value.X == 0) && (EM_value.Y == 0))
+                            msg = "EM value magnitude can't be equal to 0";
                         break;
                     default:
                         break;

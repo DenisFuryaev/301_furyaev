@@ -124,18 +124,18 @@
         <StackPanel  Grid.Column="2" Grid.Row="3" Margin="10,10,10,10">
             <TextBlock HorizontalAlignment="Left" Text="Coordinate X:" Margin="10,10,10,10"/>
             <TextBox x:Name="Coordinate_X" Margin="10,0,10,10" Text="{Binding dataitem.grid_coord_x,
-                Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
             <TextBlock HorizontalAlignment="Left" Text="Coordinate Y:" Margin="10,10,10,10"/>
             <TextBox x:Name="Coordinate_Y" Margin="10,0,10,10" Text="{Binding dataitem.grid_coord_y,
-                Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
         </StackPanel>
         <StackPanel  Grid.Column="3" Grid.Row="3" Margin="10,10,10,10">
             <TextBlock HorizontalAlignment="Left" Text="Imaginary value:" Margin="10,10,10,10"/>
             <TextBox x:Name="Imaginary_value" Margin="10,0,10,10" Text="{Binding dataitem.EM_value_real,
-                Mode=TwoWay, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
             <TextBlock HorizontalAlignment="Left" Text="Real value:" Margin="10,10,10,10"/>
             <TextBox x:Name="Real_value" Margin="10,0,10,10" Text="{Binding dataitem.EM_value_imaginary,
-                Mode=TwoWay, UpdateSourceTrigger=LostFocus, ValidatesOnDataErrors=True}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
         </StackPanel>
 
         <Button x:Name="AddDataItemButton" Content="Add DataItem" Width="130" Height="30" 
