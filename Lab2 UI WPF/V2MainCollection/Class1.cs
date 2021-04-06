@@ -428,6 +428,8 @@ namespace MyLibrary
     public class V2DataCollection : V2Data, IEnumerable<DataItem>, INotifyCollectionChanged
     {
         public List<DataItem> EM_list;
+
+        [field: NonSerializedAttribute()]
         public event NotifyCollectionChangedEventHandler CollectionChanged;
         public override IEnumerable<Vector2> GetCoords()
         {
@@ -618,7 +620,7 @@ namespace MyLibrary
         {
             V2data_list = new List<V2Data>();
             CollectionChanged += CollectionChangedHandler;
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            //CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         public void Save(string filename)
@@ -651,6 +653,14 @@ namespace MyLibrary
                 stream.Close();
                 IsModified = false;
                 OnPropertyChanged("IsModified");
+                foreach (V2Data item in V2data_list)
+                {
+                    if (item.GetType() == typeof(V2DataCollection))
+                    {
+                        V2DataCollection data = item as V2DataCollection;
+                        data.CollectionChanged += CollectionChangedHandler;
+                    }
+                }
             }
         }
 
@@ -690,6 +700,12 @@ namespace MyLibrary
         {
             V2data_list.Add(item);
             OnCollectionChanged(NotifyCollectionChangedAction.Add, item);
+            if (item.GetType() == typeof(V2DataCollection)) 
+            {
+                V2DataCollection data = item as V2DataCollection;
+                data.CollectionChanged += CollectionChangedHandler;
+            }
+               
         }
         public void Remove(int index)
         {

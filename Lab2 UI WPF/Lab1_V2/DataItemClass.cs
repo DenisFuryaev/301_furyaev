@@ -87,11 +87,11 @@ namespace Lab2_V2_UI
                             msg = "EM value magnitude can't be equal to 0";
                         break;
                     case "grid_coord_x":
-                        if (data_colletcion.HasSameCoords(grid_coord))
+                        if (data_colletcion != null && data_colletcion.HasSameCoords(grid_coord))
                             msg = "DataCollection already has DataItem with same coordinates";
                         break;
                     case "grid_coord_y":
-                        if (data_colletcion.HasSameCoords(grid_coord))
+                        if (data_colletcion != null && data_colletcion.HasSameCoords(grid_coord))
                             msg = "DataCollection already has DataItem with same coordinates";
                         break;
                     default:
