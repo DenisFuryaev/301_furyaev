@@ -113,6 +113,8 @@ namespace Lab1_V2
             Closing += OnWindowClosing;
             main_collection = new V2MainCollection();
             dataitem = new DataItemClass();
+            this.PreviewKeyDown += new KeyEventHandler(HandleEsc);
+            //FrameworkCompatibilityPreferences.KeepTextBoxDisplaySynchronizedWithTextProperty = false;
             UpdateBindings();
         }
 
@@ -244,6 +246,12 @@ namespace Lab1_V2
                 main_collection.AddV2DataOnGridFromFile(filename);
 
             UpdateBindings();
+        }
+
+        private void HandleEsc(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+                Close();
         }
     }
 
