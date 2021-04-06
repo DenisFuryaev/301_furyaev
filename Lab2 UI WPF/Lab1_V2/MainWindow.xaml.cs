@@ -161,6 +161,12 @@ namespace Lab1_V2
             return (data.GetType() == typeof(V2DataOnGrid));
         }
 
+        private void ListBox_DataCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (dataitem != null)
+                dataitem.data_colletcion = (V2DataCollection)ListBox_DataCollection.SelectedItem;
+        }
+
         private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             AlertIfMofified();
@@ -207,15 +213,14 @@ namespace Lab1_V2
         }
         private void AddDataItemCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
-            V2DataCollection data = (V2DataCollection)ListBox_DataCollection.SelectedItem;
-            data.Add(new DataItem(dataitem.grid_coord, new Complex(dataitem.EM_value_real, dataitem.EM_value_imaginary)));
+            dataitem.data_colletcion.Add(new DataItem(dataitem.grid_coord, new Complex(dataitem.EM_value_real, dataitem.EM_value_imaginary)));
         }
         private void AddDataItemCommandHandler_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if (ListBox_DataCollection.SelectedIndex == -1)
-                e.CanExecute = false;
-            else
+            if ((ListBox_DataCollection.SelectedIndex != -1) && (dataitem != null) && dataitem.IsValid())
                 e.CanExecute = true;
+            else
+                e.CanExecute = false;
         }
 
         private void AddDefaultsClicked(object sender, RoutedEventArgs e)

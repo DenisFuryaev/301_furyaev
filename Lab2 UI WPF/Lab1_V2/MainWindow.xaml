@@ -100,7 +100,7 @@
                 IsSynchronizedWithCurrentItem="False"/>
         <ListBox x:Name="ListBox_DataCollection" Margin="10,10,10,10" Grid.Column="2" Grid.Row="2"
                 ItemsSource="{Binding collection_view}" DisplayMemberPath="info"
-                IsSynchronizedWithCurrentItem="False" />
+                IsSynchronizedWithCurrentItem="False"  SelectionChanged="ListBox_DataCollection_SelectionChanged"/>
         <ListBox x:Name="ListBox_DataOnGrid" Margin="10,10,10,10" Grid.Column="1" Grid.Row="2" Grid.RowSpan="2"    
                 ItemsSource="{Binding grid_view}" DisplayMemberPath="info"
                 IsSynchronizedWithCurrentItem="False" />
@@ -121,21 +121,25 @@
                 Grid.ColumnSpan="2" Margin="0,0,-90,0" Text="{Binding main_collection.GetAverage, StringFormat=N4}" />
 
 
-        <StackPanel  Grid.Column="2" Grid.Row="3" Margin="10,10,10,10">
+        <StackPanel x:Name="DataItem_Form"  Grid.Column="2" Grid.Row="3" Margin="10,10,10,10">
             <TextBlock HorizontalAlignment="Left" Text="Coordinate X:" Margin="10,10,10,10"/>
             <TextBox x:Name="Coordinate_X" Margin="10,0,10,10" Text="{Binding dataitem.grid_coord_x,
-                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                Style="{StaticResource textBoxInError}"/>
             <TextBlock HorizontalAlignment="Left" Text="Coordinate Y:" Margin="10,10,10,10"/>
             <TextBox x:Name="Coordinate_Y" Margin="10,0,10,10" Text="{Binding dataitem.grid_coord_y,
-                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                Style="{StaticResource textBoxInError}"/>
         </StackPanel>
         <StackPanel  Grid.Column="3" Grid.Row="3" Margin="10,10,10,10">
             <TextBlock HorizontalAlignment="Left" Text="Imaginary value:" Margin="10,10,10,10"/>
             <TextBox x:Name="Imaginary_value" Margin="10,0,10,10" Text="{Binding dataitem.EM_value_real,
-                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                Style="{StaticResource textBoxInError}"/>
             <TextBlock HorizontalAlignment="Left" Text="Real value:" Margin="10,10,10,10"/>
             <TextBox x:Name="Real_value" Margin="10,0,10,10" Text="{Binding dataitem.EM_value_imaginary,
-                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                Style="{StaticResource textBoxInError}"/>
         </StackPanel>
 
         <Button x:Name="AddDataItemButton" Content="Add DataItem" Width="130" Height="30" 

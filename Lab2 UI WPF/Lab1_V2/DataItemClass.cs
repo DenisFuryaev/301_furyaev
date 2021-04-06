@@ -64,13 +64,18 @@ namespace Lab2_V2_UI
         }
 
         public V2DataCollection data_colletcion;
-        public string Error { get { return "Error Text"; } }
+        public string Error 
+        {
+            get
+            {
+                return String.Empty;
+            }
+        }
         public string this[string property]
         {
             get
             {
                 string msg = null;
-
                 switch (property)
                 {
                     case "EM_value_real":
@@ -81,6 +86,14 @@ namespace Lab2_V2_UI
                         if ((EM_value.X == 0) && (EM_value.Y == 0))
                             msg = "EM value magnitude can't be equal to 0";
                         break;
+                    case "grid_coord_x":
+                        if (data_colletcion.HasSameCoords(grid_coord))
+                            msg = "DataCollection already has DataItem with same coordinates";
+                        break;
+                    case "grid_coord_y":
+                        if (data_colletcion.HasSameCoords(grid_coord))
+                            msg = "DataCollection already has DataItem with same coordinates";
+                        break;
                     default:
                         break;
                 }
@@ -88,6 +101,13 @@ namespace Lab2_V2_UI
             }
         }
         public event PropertyChangedEventHandler PropertyChanged;
+        public bool IsValid()
+        {
+            if (this[nameof(grid_coord_x)] != null  || this[nameof(grid_coord_y)] != null  ||
+                this[nameof(EM_value_real)] != null || this[nameof(EM_value_imaginary)] != null)
+                return false;
+            return true;
+        }
 
         public DataItemClass()
         {

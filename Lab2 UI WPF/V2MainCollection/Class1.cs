@@ -511,6 +511,13 @@ namespace MyLibrary
             EM_list.Add(dataItem);
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, dataItem));
         }
+        public bool HasSameCoords(Vector2 coords)
+        {
+            foreach(DataItem dataitem in EM_list)
+                if (dataitem.grid_coord.Equals(coords))
+                    return true;
+            return false;
+        }
 
         public override string ToString()
         {
