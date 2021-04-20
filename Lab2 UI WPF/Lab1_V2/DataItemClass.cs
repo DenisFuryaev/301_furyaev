@@ -48,6 +48,7 @@ namespace Lab2_V2_UI
             {
                 EM_value.X = value;
                 OnPropertyChanged("EM_value_real");
+                OnPropertyChanged("EM_value_imaginary");
             }
         }
         public float EM_value_imaginary
@@ -60,6 +61,7 @@ namespace Lab2_V2_UI
             {
                 EM_value.Y = value;
                 OnPropertyChanged("EM_value_imaginary");
+                OnPropertyChanged("EM_value_real");
             }
         }
 
